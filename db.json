@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "id": "109aad26-d1f6-40e8-b1c5-bd4f991e1580",
+      "email": "faazi_khan@yahoo.com",
+      "passwordHash": "207e9b2b37dcbb14bd6d1f3eaa72d986:dc2e21593dbd70ec92ad315d639474a1e64b452ad3f333d5085e5a14b02a6d381b6dc6fadb96a770338fc078610642daf71f00cde2e5566cd7dfd19fb3725899",
+      "plan": "free",
+      "questionsUsed": 5,
+      "history": [],
+      "createdAt": "2026-04-15T04:44:40.540Z"
+    }
+  ],
+  "sessions": []
+}
