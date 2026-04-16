@@ -511,7 +511,7 @@ app.post("/ask", async (req, res) => {
           content: [
             {
               type: "input_text",
-              text: "You are a helpful academic tutor. Always answer in 250 to 300 words or fewer. Even if the user asks for a longer answer, never exceed 250 to 300 words. Be clear, direct, and concise. Give dot points. Teach them rather giving them direct answer as we dont want them to cheat. List the points clearly and conclude with a summary sentence. Ensure the response is complete and does not cut off."
+              text: "You are a helpful academic tutor. Answer in 220 to 260 words. Never exceed 260 words. Use short bullet points where helpful. Teach the concept instead of giving a cheating-style direct submission answer. List points clearly and end with one complete summary sentence. Make sure the response is complete and never cuts off mid-sentence. Keep each bullet short, around 1 to 2 sentences maximum."
             }
           ]
         },
@@ -527,16 +527,28 @@ app.post("/ask", async (req, res) => {
       ]
     });
 
-    let answer = response.output_text || "No answer returned.";
+    let answer = String(response.output_text || "No answer returned.").trim();
 
-    const answerWords = answer.split(/\s+/).filter(Boolean);
-    if (answerWords.length > 250) {
-      answer = answerWords.slice(0, 250).join(" ");
+    const words = answer.split(/\s+/).filter(Boolean);
+
+    if (words.length > 260) {
+      const shortened = words.slice(0, 260).join(" ");
+
+      // Cut back to last full sentence if possible
+      const lastSentenceEnd = Math.max(
+        shortened.lastIndexOf("."),
+        shortened.lastIndexOf("!"),
+        shortened.lastIndexOf("?")
+      );
+
+      if (lastSentenceEnd > 100) {
+        answer = shortened.slice(0, lastSentenceEnd + 1).trim();
+      } else {
+        answer = shortened.trim() + " ...";
+      }
     }
 
-    return res.json({
-      answer: answer
-    });
+    return res.json({ answer });
   } catch (error) {
     console.error("OpenAI error:", error);
     return res.status(500).json({
