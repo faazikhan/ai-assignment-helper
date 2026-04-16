@@ -395,14 +395,10 @@ button:hover {
       historyBox.textContent = "No history yet.";
       setStatus(askStatus, "History cleared. Usage count stayed the same.", "success");
     }
-
-
-
-
-
 function updateWordCount() {
-  const text = questionInput.value.trim();
-  const count = text ? text.split(/\\s+/).length : 0;
+  const text = questionInput.value;
+  const matches = text.match(/\b[\w'-]+\b/g);
+  const count = matches ? matches.length : 0;
 
   wordCountBox.textContent = count + " / 100 words";
 
@@ -411,6 +407,8 @@ function updateWordCount() {
   } else {
     wordCountBox.style.color = "#666";
   }
+if (questionInput) {
+  questionInput.addEventListener("input", updateWordCount);
 }
 async function ask() {
   clearStatus(askStatus);
@@ -432,7 +430,7 @@ async function ask() {
     return;
   }
 
-  const wordCount = question.split(/\\s+/).filter(Boolean).length;
+  const wordCount = question.split(/\s+/).filter(Boolean).length;
 
   if (wordCount > 100) {
     setStatus(askStatus, "Question must be 100 words or less.", "error");
@@ -494,12 +492,8 @@ async function ask() {
     askBtn.disabled = false;
     askBtn.textContent = "Ask";
   }
-}   
-
-
-
-
- async function restoreSession() {
+}
+    async function restoreSession() {
       const { data, error } = await sb.auth.getSession();
 
       if (error) {
@@ -523,22 +517,19 @@ async function ask() {
       }
     }
 
-if (signupBtn) signupBtn.addEventListener("click", signup);
+    if (signupBtn) signupBtn.addEventListener("click", signup);
 if (loginBtn) loginBtn.addEventListener("click", login);
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 if (askBtn) askBtn.addEventListener("click", ask);
 if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
 if (refreshHistoryBtn) refreshHistoryBtn.addEventListener("click", loadHistory);
+if (questionInput) questionInput.addEventListener("input", updateWordCount);
 
-if (questionInput) {
-  questionInput.addEventListener("input", updateWordCount);
-}
-
-window.addEventListener("load", async () => {
+    window.addEventListener("load", async () => {
   updateWordCount();
   await restoreSession();
 });
-</script>
+  </script>
 </div>
 </body>
 </html>`);
