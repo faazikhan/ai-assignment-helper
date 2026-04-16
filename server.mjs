@@ -18,128 +18,140 @@ app.get("/", (_req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AssignHelp AI</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-      line-height: 1.5;
-    }
-    h1, h2 {
-      margin-bottom: 12px;
-    }
-    input, textarea, button {
-      font: inherit;
-    }
-    input, textarea {
-      width: 100%;
-      max-width: 600px;
-      padding: 10px;
-      margin-bottom: 12px;
-      border: 1px solid #bbb;
-      border-radius: 6px;
-    }
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-    button {
-      padding: 10px 16px;
-      margin-right: 8px;
-      margin-bottom: 8px;
-      border: 1px solid #999;
-      border-radius: 6px;
-      background: #f5f5f5;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #ececec;
-    }
-    .row {
-      margin-bottom: 24px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 24px;
-    }
-    .status {
-      margin: 12px 0;
-      padding: 10px 12px;
-      border-radius: 6px;
-      display: none;
-    }
-    .status.info {
-      display: block;
-      background: #eef4ff;
-    }
-    .status.error {
-      display: block;
-      background: #fff0f0;
-      color: #a00000;
-    }
-    .status.success {
-      display: block;
-      background: #eefbf0;
-      color: #0d6b2f;
-    }
-    .muted {
-      color: #666;
-      font-size: 14px;
-    }
-    #answer {
-      white-space: pre-wrap;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 14px;
-      min-height: 80px;
-      background: #fafafa;
-    }
-    #usageBox, #historyBox {
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 12px;
-      background: #fafafa;
-      margin-top: 10px;
-    }
-    .history-item {
-      border-bottom: 1px solid #e3e3e3;
-      padding: 10px 0;
-    }
-    .history-item:last-child {
-      border-bottom: none;
-    }
-  </style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #f5f7fb;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1, h2 {
+  margin-top: 0;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.secondary {
+  background: #e5e7eb;
+  color: black;
+}
+
+.secondary:hover {
+  background: #d1d5db;
+}
+
+.status {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  display: none;
+}
+
+.status.success {
+  display: block;
+  background: #dcfce7;
+}
+
+.status.error {
+  display: block;
+  background: #fee2e2;
+}
+
+#answer {
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+  margin-top: 10px;
+  min-height: 80px;
+}
+
+.history-item {
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+</style>
 </head>
 <body>
+<div class="container">
   <h1>AssignHelp AI</h1>
 
-  <div class="row">
-    <h2>Signup / Login</h2>
+  <div class="card">
+<h2>Account</h2>
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
     <div>
       <button id="signupBtn">Signup</button>
-      <button id="loginBtn">Login</button>
-      <button id="logoutBtn">Logout</button>
+<button id="loginBtn">Login</button>
+<button id="logoutBtn" class="secondary">Logout</button>
     </div>
     <div id="authStatus" class="status"></div>
     <div id="userInfo" class="muted">Not logged in</div>
     <div id="usageBox">Free questions used: 0 / 5</div>
   </div>
 
-  <div class="row">
-    <h2>Ask Question</h2>
+  <div class="card">
+<h2>Ask Question</h2>
     <textarea id="question" placeholder="Type your question here..."></textarea>
     <div>
       <button id="askBtn">Ask</button>
-      <button id="clearHistoryBtn">Clear History</button>
-      <button id="refreshHistoryBtn">Refresh History</button>
+<button id="clearHistoryBtn" class="secondary">Clear History</button>
+<button id="refreshHistoryBtn" class="secondary">Refresh History</button>
     </div>
     <div id="askStatus" class="status"></div>
     <h2>Answer</h2>
     <div id="answer"></div>
   </div>
 
-  <div class="row">
-    <h2>History</h2>
+  <div class="card">
+<h2>History</h2>
     <div id="historyBox">No history yet.</div>
   </div>
 
@@ -474,15 +486,16 @@ app.get("/", (_req, res) => {
       }
     }
 
-    signupBtn.addEventListener("click", signup);
-    loginBtn.addEventListener("click", login);
-    logoutBtn.addEventListener("click", logout);
-    askBtn.addEventListener("click", ask);
-    clearHistoryBtn.addEventListener("click", clearHistory);
-    refreshHistoryBtn.addEventListener("click", loadHistory);
+    if (signupBtn) signupBtn.addEventListener("click", signup);
+if (loginBtn) loginBtn.addEventListener("click", login);
+if (logoutBtn) logoutBtn.addEventListener("click", logout);
+if (askBtn) askBtn.addEventListener("click", ask);
+if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
+if (refreshHistoryBtn) refreshHistoryBtn.addEventListener("click", loadHistory);
 
     window.addEventListener("load", restoreSession);
   </script>
+</div>
 </body>
 </html>`);
 });
