@@ -511,7 +511,7 @@ app.post("/ask", async (req, res) => {
           content: [
             {
               type: "input_text",
-              text: "You are a helpful academic tutor. Always answer in 250 words or fewer. Even if the user asks for a longer answer, never exceed 250 words. Be clear, direct, and concise."
+              text: "You are a helpful academic tutor. Always answer in 250 to 300 words or fewer. Even if the user asks for a longer answer, never exceed 250 words. Be clear, direct, and concise."
             }
           ]
         },
