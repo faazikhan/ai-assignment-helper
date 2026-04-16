@@ -376,72 +376,79 @@ app.get("/", (_req, res) => {
       setStatus(askStatus, "History cleared. Usage count stayed the same.", "success");
     }
 
-    async function ask() {
-      clearStatus(askStatus);
+ async function ask() {
+  clearStatus(askStatus);
 
-      if (!currentUser) {
-        setStatus(askStatus, "Please login first.", "error");
-        return;
-      }
+  if (!currentUser) {
+    setStatus(askStatus, "Please login first.", "error");
+    return;
+  }
 
-      if (usageCount >= FREE_LIMIT) {
-        setStatus(askStatus, "Free limit reached.", "error");
-        return;
-      }
+  if (usageCount >= FREE_LIMIT) {
+    setStatus(askStatus, "Free limit reached.", "error");
+    return;
+  }
 
-      const question = questionInput.value.trim();
+  const question = questionInput.value.trim();
 
-      if (!question) {
-        setStatus(askStatus, "Please enter a question.", "error");
-        return;
-      }
+  if (!question) {
+    setStatus(askStatus, "Please enter a question.", "error");
+    return;
+  }
 
-      const res = await fetch("/ask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ question: question })
-      });
+  const wordCount = question.split(/\s+/).filter(Boolean).length;
 
-      const data = await res.json();
+  if (wordCount > 100) {
+    setStatus(askStatus, "Question must be 100 words or less.", "error");
+    return;
+  }
 
-      if (!res.ok) {
-        setStatus(askStatus, data.error || "Something went wrong.", "error");
-        return;
-      }
+  const res = await fetch("/ask", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ question: question })
+  });
 
-      answerBox.textContent = data.answer;
+  const data = await res.json();
 
-      usageCount = usageCount + 1;
-      updateUsageBox();
+  if (!res.ok) {
+    setStatus(askStatus, data.error || "Something went wrong.", "error");
+    return;
+  }
 
-      const { error: usageError } = await sb
-        .from("user_usage")
-        .update({ questions_used: usageCount })
-        .eq("user_id", currentUser.id);
+  answerBox.textContent = data.answer;
 
-      if (usageError) {
-        console.error("usage update error:", usageError);
-        setStatus(askStatus, "Answer worked, but usage update failed.", "error");
-        return;
-      }
+  usageCount = usageCount + 1;
+  updateUsageBox();
 
-      const { error: historyError } = await sb.from("history").insert({
-        user_id: currentUser.id,
-        question: question,
-        answer: data.answer
-      });
+  const { error: usageError } = await sb
+    .from("user_usage")
+    .update({ questions_used: usageCount })
+    .eq("user_id", currentUser.id);
 
-      if (historyError) {
-        console.error("history insert error:", historyError);
-        setStatus(askStatus, "Answer worked, but history save failed.", "error");
-        return;
-      }
+  if (usageError) {
+    console.error("usage update error:", usageError);
+    setStatus(askStatus, "Answer worked, but usage update failed.", "error");
+    return;
+  }
 
-      await loadHistory();
-      setStatus(askStatus, "Answer generated successfully.", "success");
-    }
+  const { error: historyError } = await sb.from("history").insert({
+    user_id: currentUser.id,
+    question: question,
+    answer: data.answer
+  });
+
+  if (historyError) {
+    console.error("history insert error:", historyError);
+    setStatus(askStatus, "Answer worked, but history save failed.", "error");
+    return;
+  }
+
+  await loadHistory();
+  setStatus(askStatus, "Answer generated successfully.", "success");
+}
 
     async function restoreSession() {
       const { data, error } = await sb.auth.getSession();
@@ -488,13 +495,47 @@ app.post("/ask", async (req, res) => {
       return res.status(400).json({ error: "Question is required." });
     }
 
+    const wordCount = question.split(/\s+/).filter(Boolean).length;
+
+    if (wordCount > 100) {
+      return res.status(400).json({
+        error: "Question must be 100 words or less."
+      });
+    }
+
     const response = await client.responses.create({
       model: "gpt-5.4-mini",
-      input: question
+      input: [
+        {
+          role: "system",
+          content: [
+            {
+              type: "input_text",
+              text: "You are a helpful academic tutor. Always answer in 250 words or fewer. Even if the user asks for a longer answer, never exceed 250 words. Be clear, direct, and concise."
+            }
+          ]
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: question
+            }
+          ]
+        }
+      ]
     });
 
+    let answer = response.output_text || "No answer returned.";
+
+    const answerWords = answer.split(/\s+/).filter(Boolean);
+    if (answerWords.length > 250) {
+      answer = answerWords.slice(0, 250).join(" ");
+    }
+
     return res.json({
-      answer: response.output_text || "No answer returned."
+      answer: answer
     });
   } catch (error) {
     console.error("OpenAI error:", error);
@@ -503,7 +544,6 @@ app.post("/ask", async (req, res) => {
     });
   }
 });
-
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
