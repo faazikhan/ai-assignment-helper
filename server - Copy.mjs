@@ -202,60 +202,6 @@ button:disabled {
 .history-item:last-child {
   margin-bottom: 0;
 }
-
-
-#chatBox {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 12px;
-}
-
-.chat-message {
-  max-width: 80%;
-  padding: 14px 16px;
-  border-radius: 16px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  font-size: 15px;
-}
-
-.chat-user {
-  align-self: flex-end;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  border-bottom-right-radius: 6px;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
-}
-
-.chat-ai {
-  align-self: flex-start;
-  background: #f8fafc;
-  color: #111827;
-  border: 1px solid #e5e7eb;
-  border-bottom-left-radius: 6px;
-}
-
-.chat-label {
-  font-size: 12px;
-  font-weight: 700;
-  opacity: 0.8;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.typing {
-  font-style: italic;
-  color: #64748b;
-}
-
-#chatBox {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
 </style>
 
 
@@ -294,13 +240,14 @@ button:disabled {
 <button id="refreshHistoryBtn" class="secondary">Refresh History</button>
     </div>
     <div id="askStatus" class="status"></div>
-    <h2>Conversation</h2>
-<div id="chatBox"></div>
+    <h2>Answer</h2>
+    <div id="answer"></div>
   </div>
 
   <div class="card">
-<h2>Saved History</h2>
-<div id="historyBox"></div>  </div>
+<h2>History</h2>
+    <div id="historyBox">No history yet.</div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -317,7 +264,7 @@ button:disabled {
     const askStatus = document.getElementById("askStatus");
     const userInfo = document.getElementById("userInfo");
     const usageBox = document.getElementById("usageBox");
-    const chatBox = document.getElementById("chatBox");
+    const answerBox = document.getElementById("answer");
     const historyBox = document.getElementById("historyBox");
 
     const emailInput = document.getElementById("email");
@@ -360,57 +307,6 @@ button:disabled {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     }
-
-
-
-
-function renderChatMessage(role, text) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "chat-message " + (role === "user" ? "chat-user" : "chat-ai");
-
-  const label = document.createElement("div");
-  label.className = "chat-label";
-  label.textContent = role === "user" ? "You" : "AssignHelp AI";
-
-  const body = document.createElement("div");
-  body.textContent = text;
-
-  wrapper.appendChild(label);
-  wrapper.appendChild(body);
-  chatBox.appendChild(wrapper);
-}
-
-function clearChatBox() {
-  chatBox.innerHTML = "";
-}
-
-function showTypingMessage() {
-  const wrapper = document.createElement("div");
-  wrapper.className = "chat-message chat-ai typing";
-  wrapper.id = "typingMessage";
-
-  const label = document.createElement("div");
-  label.className = "chat-label";
-  label.textContent = "AssignHelp AI";
-
-  const body = document.createElement("div");
-  body.textContent = "Thinking...";
-
-  wrapper.appendChild(label);
-  wrapper.appendChild(body);
-  chatBox.appendChild(wrapper);
-}
-
-function removeTypingMessage() {
-  const typingMessage = document.getElementById("typingMessage");
-  if (typingMessage) {
-    typingMessage.remove();
-  }
-}
-
-function scrollToBottom() {
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
 
 function updateAskButtonState() {
   const text = questionInput.value.trim();
@@ -541,53 +437,43 @@ function updateAskButtonState() {
       await sb.auth.signOut();
       currentUser = null;
       usageCount = 0;
-      clearChatBox();
+      answerBox.textContent = "";
       historyBox.textContent = "No history yet.";
       updateUserInfo();
       updateUsageBox();
       setStatus(authStatus, "Logged out.", "success");
     }
 
-
-
-
     async function loadHistory() {
-  if (!currentUser) return;
+      if (!currentUser) return;
 
-  const { data, error } = await sb
-    .from("history")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .order("created_at", { ascending: false });
+      const { data, error } = await sb
+        .from("history")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("loadHistory error:", error);
-    setStatus(askStatus, "Could not load history.", "error");
-    return;
-  }
+      if (error) {
+        console.error("loadHistory error:", error);
+        setStatus(askStatus, "Could not load history.", "error");
+        return;
+      }
 
-  if (!data || data.length === 0) {
-    historyBox.textContent = "No history yet.";
-    return;
-  }
+      if (!data || data.length === 0) {
+        historyBox.textContent = "No history yet.";
+        return;
+      }
 
-  let html = "";
-  for (const item of data) {
-    html += '<div class="history-item">';
-    html += '<strong>Q:</strong> ' + escapeHtml(item.question) + '<br>';
-    html += '<strong>A:</strong> ' + escapeHtml(item.answer);
-    html += '</div>';
-  }
+      let html = "";
+      for (const item of data) {
+        html += '<div class="history-item">';
+        html += '<strong>Q:</strong> ' + escapeHtml(item.question) + '<br>';
+        html += '<strong>A:</strong> ' + escapeHtml(item.answer);
+        html += '</div>';
+      }
 
-  historyBox.innerHTML = html;
-}
-
-
-
-
-
-
-
+      historyBox.innerHTML = html;
+    }
 
     async function clearHistory() {
       clearStatus(askStatus);
@@ -611,6 +497,9 @@ function updateAskButtonState() {
       historyBox.textContent = "No history yet.";
       setStatus(askStatus, "History cleared. Usage count stayed the same.", "success");
     }
+
+
+
 
 
 function updateWordCount() {
@@ -659,10 +548,7 @@ async function ask() {
 
   askBtn.disabled = true;
   askBtn.textContent = "Thinking...";
-  renderChatMessage("user", question);
-scrollToBottom();
-showTypingMessage();
-scrollToBottom();
+  answerBox.textContent = "Generating answer...";
 
   try {
     const res = await fetch("/ask", {
@@ -677,15 +563,11 @@ scrollToBottom();
 
     if (!res.ok) {
       setStatus(askStatus, data.error || "Something went wrong.", "error");
-      removeTypingMessage();
+      answerBox.textContent = "";
       return;
     }
 
-    removeTypingMessage();
-renderChatMessage("ai", data.answer);
-scrollToBottom();
-questionInput.value = "";
-updateWordCount();
+    answerBox.textContent = data.answer;
 
     usageCount = usageCount + 1;
     updateUsageBox();

@@ -123,6 +123,25 @@ button:hover {
   margin-bottom: 12px;
 }
 }
+
+textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+button {
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+.status.success {
+  background: #d1fae5;
+}
+
+.status.error {
+  background: #fee2e2;
+}
+
 </style>
 </head>
 <body>
@@ -220,6 +239,21 @@ button:hover {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     }
+
+function updateAskButtonState() {
+  const text = questionInput.value.trim();
+
+  if (!text) {
+    askBtn.disabled = true;
+    askBtn.style.opacity = "0.5";
+    askBtn.style.cursor = "not-allowed";
+  } else {
+    askBtn.disabled = false;
+    askBtn.style.opacity = "1";
+    askBtn.style.cursor = "pointer";
+  }
+}
+
 
     async function ensureUsageRow() {
       const { data, error } = await sb
@@ -395,10 +429,14 @@ button:hover {
       historyBox.textContent = "No history yet.";
       setStatus(askStatus, "History cleared. Usage count stayed the same.", "success");
     }
+
+
+
+
+
 function updateWordCount() {
-  const text = questionInput.value;
-  const matches = text.match(/\b[\w'-]+\b/g);
-  const count = matches ? matches.length : 0;
+  const text = questionInput.value.trim();
+  const count = text ? text.split(/\\s+/).length : 0;
 
   wordCountBox.textContent = count + " / 100 words";
 
@@ -407,8 +445,7 @@ function updateWordCount() {
   } else {
     wordCountBox.style.color = "#666";
   }
-if (questionInput) {
-  questionInput.addEventListener("input", updateWordCount);
+updateAskButtonState();
 }
 async function ask() {
   clearStatus(askStatus);
@@ -419,7 +456,11 @@ async function ask() {
   }
 
   if (usageCount >= FREE_LIMIT) {
-    setStatus(askStatus, "Free limit reached.", "error");
+    setStatus(
+  askStatus,
+  "Free limit reached. Upgrade to continue using AssignHelp AI.",
+  "error"
+);
     return;
   }
 
@@ -430,7 +471,7 @@ async function ask() {
     return;
   }
 
-  const wordCount = question.split(/\s+/).filter(Boolean).length;
+  const wordCount = question.split(/\\s+/).filter(Boolean).length;
 
   if (wordCount > 100) {
     setStatus(askStatus, "Question must be 100 words or less.", "error");
@@ -463,6 +504,22 @@ async function ask() {
     usageCount = usageCount + 1;
     updateUsageBox();
 
+
+const { data: profile } = await sb
+  .from("profiles")
+  .select("plan")
+  .eq("id", currentUser.id)
+  .single();
+
+const plan = profile?.plan || "free";
+
+if (plan === "free" && usageCount >= FREE_LIMIT) {
+  setStatus(askStatus, "Free limit reached. Upgrade to continue.", "error");
+  return;
+}
+
+
+
     const { error: usageError } = await sb
       .from("user_usage")
       .update({ questions_used: usageCount })
@@ -488,12 +545,18 @@ async function ask() {
 
     await loadHistory();
     setStatus(askStatus, "Answer generated successfully.", "success");
+questionInput.value = "";
+updateWordCount();
   } finally {
     askBtn.disabled = false;
     askBtn.textContent = "Ask";
   }
-}
-    async function restoreSession() {
+}   
+
+
+
+
+ async function restoreSession() {
       const { data, error } = await sb.auth.getSession();
 
       if (error) {
@@ -517,19 +580,23 @@ async function ask() {
       }
     }
 
-    if (signupBtn) signupBtn.addEventListener("click", signup);
+if (signupBtn) signupBtn.addEventListener("click", signup);
 if (loginBtn) loginBtn.addEventListener("click", login);
 if (logoutBtn) logoutBtn.addEventListener("click", logout);
 if (askBtn) askBtn.addEventListener("click", ask);
 if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
 if (refreshHistoryBtn) refreshHistoryBtn.addEventListener("click", loadHistory);
-if (questionInput) questionInput.addEventListener("input", updateWordCount);
 
-    window.addEventListener("load", async () => {
+if (questionInput) {
+  questionInput.addEventListener("input", updateWordCount);
+}
+
+window.addEventListener("load", async () => {
   updateWordCount();
+updateAskButtonState();
   await restoreSession();
 });
-  </script>
+</script>
 </div>
 </body>
 </html>`);
