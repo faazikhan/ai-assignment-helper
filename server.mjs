@@ -209,6 +209,9 @@ button:disabled {
   flex-direction: column;
   gap: 14px;
   margin-top: 12px;
+max-height: 400px;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 .chat-message {
@@ -272,13 +275,15 @@ button:disabled {
 
   <div class="card">
 <h2>Account</h2>
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <div>
-      <button id="signupBtn">Signup</button>
-<button id="loginBtn">Login</button>
-<button id="logoutBtn" class="secondary">Logout</button>
-    </div>
+    <div id="authForm">
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button id="signupBtn">Signup</button>
+  <button id="loginBtn">Login</button>
+</div>
+
+<button id="logoutBtn" class="secondary" style="display:none;">Logout</button>
     <div id="authStatus" class="status"></div>
     <div id="userInfo" class="muted">Not logged in</div>
     <div id="usageBox">Free questions used: 0 / 5</div>
@@ -327,6 +332,7 @@ button:disabled {
     const signupBtn = document.getElementById("signupBtn");
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+const authForm = document.getElementById("authForm");
     const askBtn = document.getElementById("askBtn");
     const clearHistoryBtn = document.getElementById("clearHistoryBtn");
     const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
@@ -345,7 +351,15 @@ button:disabled {
     function updateUsageBox() {
       usageBox.textContent = "Free questions used: " + usageCount + " / " + FREE_LIMIT;
     }
-
+function updateAuthVisibility() {
+  if (currentUser) {
+    authForm.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  } else {
+    authForm.style.display = "block";
+    logoutBtn.style.display = "none";
+  }
+}
     function updateUserInfo() {
       if (currentUser) {
         userInfo.textContent = "Logged in as: " + currentUser.email;
@@ -409,9 +423,11 @@ function removeTypingMessage() {
 }
 
 function scrollToBottom() {
-  chatBox.scrollTop = chatBox.scrollHeight;
+  chatBox.scrollTo({
+    top: chatBox.scrollHeight,
+    behavior: "smooth"
+  });
 }
-
 function updateAskButtonState() {
   const text = questionInput.value.trim();
 
@@ -525,6 +541,7 @@ function updateAskButtonState() {
       }
 
       currentUser = data.user;
+updateAuthVisibility();
       updateUserInfo();
 
       try {
@@ -540,6 +557,7 @@ function updateAskButtonState() {
     async function logout() {
       await sb.auth.signOut();
       currentUser = null;
+updateAuthVisibility();
       usageCount = 0;
       clearChatBox();
       historyBox.textContent = "No history yet.";
@@ -626,6 +644,40 @@ function updateWordCount() {
   }
 updateAskButtonState();
 }
+
+
+
+async function typeAiMessage(text) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "chat-message chat-ai";
+
+  const label = document.createElement("div");
+  label.className = "chat-label";
+  label.textContent = "AssignHelp AI";
+
+  const body = document.createElement("div");
+  body.textContent = "";
+
+  wrapper.appendChild(label);
+  wrapper.appendChild(body);
+  chatBox.appendChild(wrapper);
+
+  const words = text.split(" ");
+  let current = "";
+
+  for (let i = 0; i < words.length; i++) {
+    current += (i === 0 ? "" : " ") + words[i];
+    body.textContent = current;
+
+    scrollToBottom();
+
+    await new Promise(resolve => setTimeout(resolve, 25));
+  }
+}
+
+
+
+
 async function ask() {
   clearStatus(askStatus);
 
@@ -681,11 +733,11 @@ scrollToBottom();
       return;
     }
 
-    removeTypingMessage();
-renderChatMessage("ai", data.answer);
-scrollToBottom();
+removeTypingMessage();
+await typeAiMessage(data.answer);
 questionInput.value = "";
 updateWordCount();
+scrollToBottom();
 
     usageCount = usageCount + 1;
     updateUsageBox();
@@ -752,6 +804,7 @@ updateWordCount();
 
       if (data.session && data.session.user) {
         currentUser = data.session.user;
+updateAuthVisibility();
         updateUserInfo();
 
         try {
@@ -761,9 +814,10 @@ updateWordCount();
           console.error("restoreSession load error:", err);
         }
       } else {
-        updateUserInfo();
-        updateUsageBox();
-      }
+  updateAuthVisibility();
+  updateUserInfo();
+  updateUsageBox();
+}
     }
 
 if (signupBtn) signupBtn.addEventListener("click", signup);
