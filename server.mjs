@@ -123,6 +123,25 @@ button:hover {
   margin-bottom: 12px;
 }
 }
+
+textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+button {
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+.status.success {
+  background: #d1fae5;
+}
+
+.status.error {
+  background: #fee2e2;
+}
+
 </style>
 </head>
 <body>
@@ -220,6 +239,21 @@ button:hover {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     }
+
+function updateAskButtonState() {
+  const text = questionInput.value.trim();
+
+  if (!text) {
+    askBtn.disabled = true;
+    askBtn.style.opacity = "0.5";
+    askBtn.style.cursor = "not-allowed";
+  } else {
+    askBtn.disabled = false;
+    askBtn.style.opacity = "1";
+    askBtn.style.cursor = "pointer";
+  }
+}
+
 
     async function ensureUsageRow() {
       const { data, error } = await sb
@@ -411,6 +445,7 @@ function updateWordCount() {
   } else {
     wordCountBox.style.color = "#666";
   }
+updateAskButtonState();
 }
 async function ask() {
   clearStatus(askStatus);
@@ -421,7 +456,11 @@ async function ask() {
   }
 
   if (usageCount >= FREE_LIMIT) {
-    setStatus(askStatus, "Free limit reached.", "error");
+    setStatus(
+  askStatus,
+  "Free limit reached. Upgrade to continue using AssignHelp AI.",
+  "error"
+);
     return;
   }
 
@@ -465,6 +504,22 @@ async function ask() {
     usageCount = usageCount + 1;
     updateUsageBox();
 
+
+const { data: profile } = await sb
+  .from("profiles")
+  .select("plan")
+  .eq("id", currentUser.id)
+  .single();
+
+const plan = profile?.plan || "free";
+
+if (plan === "free" && usageCount >= FREE_LIMIT) {
+  setStatus(askStatus, "Free limit reached. Upgrade to continue.", "error");
+  return;
+}
+
+
+
     const { error: usageError } = await sb
       .from("user_usage")
       .update({ questions_used: usageCount })
@@ -490,6 +545,8 @@ async function ask() {
 
     await loadHistory();
     setStatus(askStatus, "Answer generated successfully.", "success");
+questionInput.value = "";
+updateWordCount();
   } finally {
     askBtn.disabled = false;
     askBtn.textContent = "Ask";
@@ -536,6 +593,7 @@ if (questionInput) {
 
 window.addEventListener("load", async () => {
   updateWordCount();
+updateAskButtonState();
   await restoreSession();
 });
 </script>
