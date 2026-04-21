@@ -172,21 +172,6 @@ app.get("/", (_req, res) => {
       box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
     }
 
-    .footerLinks {
-      margin-top: 18px;
-      text-align: center;
-    }
-
-    .footerLinks a {
-      color: #1d4ed8;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .footerLinks a:hover {
-      text-decoration: underline;
-    }
-
     input, textarea {
       width: 100%;
       max-width: 100%;
@@ -471,6 +456,8 @@ app.get("/", (_req, res) => {
         max-width: 100%;
       }
     }
+
+
   </style>
 </head>
 <body>
@@ -495,6 +482,7 @@ app.get("/", (_req, res) => {
       </svg>
     </div>
     <h1>AssignHelp AI</h1>
+
   </div>
 
   <div class="siteIntro">
@@ -502,9 +490,9 @@ app.get("/", (_req, res) => {
       AssignHelp AI is your smart study support platform designed to help you understand questions, explore key concepts, and build stronger answers with confidence. Get clear, structured, and easy-to-follow explanations to support your learning every step of the way.
     </p>
     <ul>
-      <li><strong>New User:</strong> Type your email and password and click <strong>Signup</strong> to create your account.</li>
-      <li><strong>Returning User:</strong> Type your email and password and click <strong>Login</strong> to access your account.</li>
-      <li><strong>Before signup or login:</strong> Please tick the box labeled <strong>I agree to use this platform for learning purposes only</strong>.</li>
+      <li><strong>New User:</strong> Type your username & password and click <strong>Signup</strong> to create your account.</li>
+      <li><strong>Returning User:</strong> Type you username & password and click <strong>Login</strong> to access your account.</li>
+      <li><strong>To enable the login and signup buttons, please ensure you have checked the box labeled 'I agree to use this platform for learning purposes only.</strong></li>
       <li><strong>How to use:</strong> Type your question and click <strong>Ask</strong> to receive a detailed explanation.</li>
       <li><strong>Free access:</strong> You get <strong>5 free questions</strong> to try the platform.</li>
       <li><strong>Upgrade:</strong> After reaching the free limit, continue using the service with <strong>Pro</strong> for ongoing access.</li>
@@ -563,10 +551,6 @@ app.get("/", (_req, res) => {
   <div class="card">
     <h2>Saved History</h2>
     <div id="historyBox"></div>
-  </div>
-
-  <div class="footerLinks">
-    <a href="/policies">Privacy Policy, Refund Policy & Terms</a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1129,357 +1113,6 @@ app.get("/", (_req, res) => {
     });
   </script>
 </div>
-</body>
-</html>`);
-});
-
-app.get("/policies", (_req, res) => {
-  res.send(`<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Policies | AssignHelp AI</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
-      color: #111827;
-    }
-
-    .container {
-      max-width: 950px;
-      margin: 0 auto;
-      padding: 32px 20px 60px;
-    }
-
-    .topBar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    h1 {
-      font-size: 40px;
-      margin: 0;
-      font-weight: 800;
-      letter-spacing: -1px;
-    }
-
-    .backLink {
-      color: #1d4ed8;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .backLink:hover {
-      text-decoration: underline;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.92);
-      border: 1px solid rgba(255,255,255,0.7);
-      border-radius: 18px;
-      padding: 24px;
-      margin-bottom: 22px;
-      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
-      line-height: 1.7;
-    }
-
-    h2 {
-      font-size: 28px;
-      margin: 0 0 8px;
-    }
-
-    h3 {
-      font-size: 18px;
-      margin: 22px 0 8px;
-    }
-
-    p {
-      margin: 8px 0;
-    }
-
-    ul {
-      margin: 8px 0 8px 22px;
-      padding: 0;
-    }
-
-    li {
-      margin-bottom: 6px;
-    }
-
-    .muted {
-      color: #64748b;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    @media (max-width: 700px) {
-      h1 {
-        font-size: 32px;
-      }
-
-      .topBar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="topBar">
-      <h1>Policies</h1>
-      <a class="backLink" href="/">← Back to Home</a>
-    </div>
-
-    <div class="card">
-      <h2>Privacy Policy</h2>
-      <div class="muted">Last updated: 20/4/2026</div>
-
-      <p>Welcome to AssignHelp AI. We respect your privacy and are committed to protecting your personal information.</p>
-
-      <h3>1. Who we are</h3>
-      <p>AssignHelp AI is an online platform that provides study support, explanatory content, and assignment-help guidance for learning purposes only.</p>
-
-      <h3>2. What information we collect</h3>
-      <ul>
-        <li>your name</li>
-        <li>email address</li>
-        <li>login credentials</li>
-        <li>account details</li>
-        <li>questions you submit</li>
-        <li>answers generated for you</li>
-        <li>saved history and usage data</li>
-        <li>payment and subscription information processed through third-party providers</li>
-        <li>device, browser, IP address, and analytics data</li>
-      </ul>
-
-      <h3>3. How we collect information</h3>
-      <ul>
-        <li>create an account</li>
-        <li>log in</li>
-        <li>submit questions</li>
-        <li>contact us</li>
-        <li>subscribe to a paid plan</li>
-        <li>browse or use the website</li>
-      </ul>
-
-      <h3>4. Why we collect your information</h3>
-      <ul>
-        <li>create and manage your account</li>
-        <li>provide website functionality</li>
-        <li>generate responses and save your history</li>
-        <li>track free-question limits and subscription access</li>
-        <li>process payments and manage billing</li>
-        <li>improve our services, security, and performance</li>
-        <li>communicate with you about your account, updates, and support requests</li>
-        <li>enforce our terms and protect against misuse</li>
-      </ul>
-
-      <h3>5. Learning-use notice</h3>
-      <p>AssignHelp AI is intended to support learning and understanding. Users must not submit generated content as their own work where this would breach academic integrity rules.</p>
-
-      <h3>6. Cookies and analytics</h3>
-      <p>We may use cookies and similar technologies to keep you logged in, remember preferences, understand site usage, and improve security and performance. You can usually control cookies through your browser settings.</p>
-
-      <h3>7. Payments</h3>
-      <p>If you subscribe to a paid plan, payment details are usually processed by a third-party payment provider. We do not store full card details on our servers unless explicitly stated.</p>
-
-      <h3>8. Disclosure of information</h3>
-      <ul>
-        <li>payment processors</li>
-        <li>cloud hosting providers</li>
-        <li>analytics and security providers</li>
-        <li>legal or regulatory authorities where required by law</li>
-        <li>professional advisers where reasonably necessary</li>
-      </ul>
-      <p>We do not sell your personal information.</p>
-
-      <h3>9. Data storage and security</h3>
-      <p>We take reasonable steps to protect personal information from misuse, interference, loss, unauthorised access, modification, or disclosure. However, no online platform can guarantee absolute security.</p>
-
-      <h3>10. Access, correction, and deletion</h3>
-      <p>You may request access to, correction of, or deletion of your personal information by contacting us at: assignhelpai@gmail.com</p>
-
-      <h3>11. International users</h3>
-      <p>If you access AssignHelp AI from outside Australia, your information may be processed and stored in other countries where our service providers operate.</p>
-
-      <h3>12. Retention</h3>
-      <p>We retain personal information only for as long as reasonably necessary for service delivery, compliance, dispute resolution, security, and legitimate business purposes.</p>
-
-      <h3>13. Children</h3>
-      <p>This website is not intended for children under 13 without parental or guardian supervision.</p>
-
-      <h3>14. Complaints</h3>
-      <p>If you have a privacy complaint, contact us first at: assignhelpai@gmail.com. We will try to respond within a reasonable time.</p>
-
-      <h3>15. Changes to this policy</h3>
-      <p>We may update this Privacy Policy from time to time. The latest version will always be posted on this page with the updated date.</p>
-    </div>
-
-    <div class="card">
-      <h2>Refund Policy</h2>
-      <div class="muted">Last updated: 20/4/2026</div>
-
-      <p>This Refund Policy applies to subscriptions and paid services purchased through AssignHelp AI.</p>
-
-      <h3>1. Free plan</h3>
-      <p>We offer a free plan with limited usage so users can try the platform before subscribing.</p>
-
-      <h3>2. Pro subscriptions</h3>
-      <p>If you upgrade to Pro, you will receive access to paid features for the billing period selected at checkout.</p>
-
-      <h3>3. Change-of-mind refunds</h3>
-      <p>Unless required by law, we do not provide refunds for:</p>
-      <ul>
-        <li>change of mind</li>
-        <li>accidental purchase where access has already been granted</li>
-        <li>failure to use the subscription</li>
-        <li>dissatisfaction based on personal preference alone</li>
-      </ul>
-
-      <h3>4. When refunds may be available</h3>
-      <p>We may consider a full or partial refund where:</p>
-      <ul>
-        <li>you were charged incorrectly</li>
-        <li>you were billed multiple times in error</li>
-        <li>the service was unavailable for a substantial period due to our fault</li>
-        <li>required by applicable consumer law</li>
-      </ul>
-
-      <h3>5. Consumer rights</h3>
-      <p>Nothing in this policy excludes, limits, or replaces rights you may have under the Australian Consumer Law or other applicable laws.</p>
-
-      <h3>6. Cancelling subscriptions</h3>
-      <p>You may cancel your subscription at any time. Unless stated otherwise at checkout:</p>
-      <ul>
-        <li>cancellation stops future renewals</li>
-        <li>your access continues until the end of the current billing period</li>
-        <li>cancellation does not automatically create a refund for the current period</li>
-      </ul>
-
-      <h3>7. Requesting a refund</h3>
-      <p>To request a refund, email: assignhelpai@gmail.com</p>
-      <p>Include:</p>
-      <ul>
-        <li>your account email</li>
-        <li>date of purchase</li>
-        <li>payment reference</li>
-        <li>reason for the request</li>
-      </ul>
-
-      <h3>8. Processing time</h3>
-      <p>If a refund is approved, it will usually be returned to the original payment method within a reasonable processing period, depending on your payment provider.</p>
-
-      <h3>9. Chargebacks</h3>
-      <p>If you believe a payment was made in error, please contact us first so we can try to resolve it before a chargeback is initiated.</p>
-    </div>
-
-    <div class="card">
-      <h2>Terms and Conditions</h2>
-      <div class="muted">Last updated: 20/4/2026</div>
-
-      <p>By accessing or using AssignHelp AI, you agree to these Terms and Conditions.</p>
-
-      <h3>1. About the service</h3>
-      <p>AssignHelp AI is an online platform that provides educational support, explanations, and study assistance. It is intended for learning purposes only.</p>
-
-      <h3>2. Eligibility</h3>
-      <p>You must be at least 18 years old, or have permission from a parent, guardian, school, or other lawful authority to use this website.</p>
-
-      <h3>3. Acceptable use</h3>
-      <p>You agree to use the platform lawfully and responsibly. You must not:</p>
-      <ul>
-        <li>use the platform for plagiarism or academic misconduct</li>
-        <li>submit generated content as your own where prohibited</li>
-        <li>misuse, disrupt, or attack the service</li>
-        <li>attempt unauthorised access to accounts, systems, or data</li>
-        <li>use the service to create unlawful, harmful, defamatory, or fraudulent material</li>
-      </ul>
-
-      <h3>4. Academic integrity</h3>
-      <p>The platform is designed to help users understand concepts and improve learning. You are responsible for how you use any output. AssignHelp AI does not accept responsibility for plagiarism, academic penalties, or misuse of content.</p>
-
-      <h3>5. Accounts</h3>
-      <p>You are responsible for:</p>
-      <ul>
-        <li>keeping your login details secure</li>
-        <li>all activity under your account</li>
-        <li>providing accurate account information</li>
-      </ul>
-      <p>We may suspend or terminate accounts that breach these Terms.</p>
-
-      <h3>6. Free and paid access</h3>
-      <p>We may offer:</p>
-      <ul>
-        <li>a free plan with limited usage</li>
-        <li>paid plans with additional or ongoing access</li>
-      </ul>
-      <p>We may change features, limits, or pricing from time to time with reasonable notice where required.</p>
-
-      <h3>7. Payments and renewals</h3>
-      <p>If you purchase a subscription:</p>
-      <ul>
-        <li>you authorise the applicable charges</li>
-        <li>recurring plans may renew automatically unless cancelled</li>
-        <li>you are responsible for applicable taxes, fees, and payment obligations</li>
-      </ul>
-
-      <h3>8. Refunds</h3>
-      <p>Refunds are governed by our Refund Policy and any rights you have under applicable law.</p>
-
-      <h3>9. Intellectual property</h3>
-      <p>All website content, branding, software, design, and non-user-generated materials on AssignHelp AI remain our property or the property of our licensors.</p>
-      <p>You retain rights in content you submit, but you grant us a limited right to process, store, and use it to operate and improve the service.</p>
-
-      <h3>10. Generated content</h3>
-      <p>We do not guarantee that generated content will be fully accurate, complete, suitable for your institution’s rules, or free from errors. You must review and use your own judgment before relying on any output.</p>
-
-      <h3>11. Availability</h3>
-      <p>We aim to keep the service available, but we do not guarantee uninterrupted or error-free access. We may suspend, update, or modify the service at any time.</p>
-
-      <h3>12. Third-party services</h3>
-      <p>We may use third-party services such as hosting, analytics, authentication, and payment providers. Your use of those elements may also be subject to their terms and policies.</p>
-
-      <h3>13. Limitation of liability</h3>
-      <p>To the maximum extent permitted by law, AssignHelp AI is not liable for:</p>
-      <ul>
-        <li>plagiarism or academic misconduct by users</li>
-        <li>indirect or consequential loss</li>
-        <li>loss of data, profits, reputation, or opportunity</li>
-        <li>errors in generated content</li>
-        <li>temporary service interruptions</li>
-      </ul>
-      <p>Nothing in these Terms excludes rights that cannot lawfully be excluded.</p>
-
-      <h3>14. Indemnity</h3>
-      <p>You agree to indemnify us against claims, losses, and expenses arising from your misuse of the platform or your breach of these Terms to the extent permitted by law.</p>
-
-      <h3>15. Privacy</h3>
-      <p>Your use of the website is also governed by our Privacy Policy.</p>
-
-      <h3>16. Termination</h3>
-      <p>We may suspend or terminate your access if you breach these Terms or misuse the platform.</p>
-
-      <h3>17. Changes to terms</h3>
-      <p>We may update these Terms from time to time. Continued use of the website after updated Terms are posted means you accept the revised Terms.</p>
-
-      <h3>18. Governing law</h3>
-      <p>These Terms are governed by the laws of South Australia, Australia, unless another mandatory law applies.</p>
-
-      <h3>19. Contact</h3>
-      <p>For questions, complaints, or legal notices, contact: assignhelpai@gmail.com.</p>
-    </div>
-  </div>
 </body>
 </html>`);
 });
