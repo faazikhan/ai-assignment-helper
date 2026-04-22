@@ -562,20 +562,23 @@ app.get("/", (_req, res) => {
     <h2>Account</h2>
 
     <div id="authForm">
-      <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
-      <button id="signupBtn">Signup</button>
-      <button id="loginBtn">Login</button>
-      <button id="resendConfirmBtn" class="secondary" type="button">Resend Confirmation Email</button>
-      <button id="forgotPasswordBtn" class="secondary" type="button">Forgot Password</button>
-      <button id="upgradeBtn">Upgrade to Pro ($9.99/month)</button>
-   </div>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button id="signupBtn">Signup</button>
+  <button id="loginBtn">Login</button>
+  <button id="resendConfirmBtn" class="secondary" type="button">Resend Confirmation Email</button>
+  <button id="forgotPasswordBtn" class="secondary" type="button">Forgot Password</button>
+</div>
 
-    <button id="logoutBtn" class="secondary" style="display:none;">Logout</button>
-    <div id="authStatus" class="status"></div>
-    <div id="userInfo" class="muted">Not logged in</div>
-    <div id="usageBox">Free questions used: 0 / 5</div>
-  </div>
+<div id="memberActions" style="display:none;">
+  <button id="logoutBtn" class="secondary" type="button">Logout</button>
+  <button id="upgradeBtn" type="button">Upgrade to Pro ($9.99/month)</button>
+</div>
+
+<div id="authStatus" class="status"></div>
+<div id="userInfo" class="muted">Not logged in</div>
+<div id="usageBox">Free questions used: 0 / 5</div>
+</div>
 
   <div class="card">
     <h2>Ask Question</h2>
@@ -648,6 +651,7 @@ app.get("/", (_req, res) => {
     const logoutBtn = document.getElementById("logoutBtn");
     const upgradeBtn = document.getElementById("upgradeBtn");
     const authForm = document.getElementById("authForm");
+    const memberActions = document.getElementById("memberActions");
     const askBtn = document.getElementById("askBtn");
     const clearHistoryBtn = document.getElementById("clearHistoryBtn");
     const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
@@ -684,14 +688,14 @@ app.get("/", (_req, res) => {
     }
 
     function updateAuthVisibility() {
-      if (currentUser) {
-        authForm.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-      } else {
-        authForm.style.display = "block";
-        logoutBtn.style.display = "none";
-      }
-    }
+  if (currentUser) {
+    authForm.style.display = "none";
+    memberActions.style.display = "block";
+  } else {
+    authForm.style.display = "block";
+    memberActions.style.display = "none";
+  }
+}
 
     function updateUserInfo() {
       if (currentUser) {
