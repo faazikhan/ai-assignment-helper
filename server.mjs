@@ -644,6 +644,7 @@ app.get("/", (_req, res) => {
     let currentUser = null;
     let usageCount = 0;
     let captchaToken = "";
+    let currentPlan = "free";
 
     const authStatus = document.getElementById("authStatus");
     const askStatus = document.getElementById("askStatus");
@@ -707,6 +708,7 @@ app.get("/", (_req, res) => {
     authForm.style.display = "block";
     memberActions.style.display = "none";
   }
+updateUpgradeVisibility();
 }
 
     function updateUserInfo() {
@@ -831,6 +833,18 @@ app.get("/", (_req, res) => {
       });
     }
 
+function updateUpgradeVisibility() {
+  if (!upgradeBtn) return;
+
+  if (currentUser && currentPlan === "pro") {
+    upgradeBtn.style.display = "none";
+  } else if (currentUser) {
+    upgradeBtn.style.display = "inline-block";
+  } else {
+    upgradeBtn.style.display = "none";
+  }
+}
+
     function updateAskButtonState() {
       const text = questionInput.value.trim();
       askBtn.disabled = !text;
@@ -844,6 +858,29 @@ app.get("/", (_req, res) => {
         window.turnstile.reset();
       }
     }
+
+async function loadCurrentPlan() {
+  if (!currentUser) {
+    currentPlan = "free";
+    return;
+  }
+
+  const { data, error } = await sb
+    .from("profiles")
+    .select("plan")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("loadCurrentPlan error:", error);
+    currentPlan = "free";
+    return;
+  }
+
+  currentPlan = data?.plan || "free";
+  updateUpgradeVisibility();
+}
+
 
     async function ensureUsageRow() {
       const { data, error } = await sb
@@ -1122,6 +1159,7 @@ async function upgradeToPro() {
       try {
         await ensureUsageRow();
         await loadHistory();
+        await loadCurrentPlan();
         setStatus(authStatus, "Logged in successfully.", "success");
       } catch (err) {
         console.error(err);
@@ -1132,6 +1170,7 @@ async function upgradeToPro() {
     async function logout() {
       await sb.auth.signOut();
       currentUser = null;
+      currentPlan = "free";
       usageCount = 0;
       updateAuthVisibility();
       clearChatBox();
@@ -1229,14 +1268,14 @@ async function upgradeToPro() {
         return;
       }
 
-      if (usageCount >= FREE_LIMIT) {
-        setStatus(
-          askStatus,
-          "Free limit reached. Upgrade to continue using AssignHelp AI.",
-          "error"
-        );
-        return;
-      }
+      if (currentPlan !== "pro" && usageCount >= FREE_LIMIT) {
+  setStatus(
+    askStatus,
+    "Free limit reached. Upgrade to continue using AssignHelp AI.",
+    "error"
+  );
+  return;
+}
 
       const question = questionInput.value.trim();
 
@@ -1290,7 +1329,8 @@ async function upgradeToPro() {
           .single();
 
         const plan = profile?.plan || "free";
-
+        currentPlan = plan;
+        updateUpgradeVisibility();
         const { error: usageError } = await sb
           .from("user_usage")
           .update({ questions_used: usageCount })
@@ -1351,6 +1391,7 @@ async function upgradeToPro() {
         try {
           await ensureUsageRow();
           await loadHistory();
+          await loadCurrentPlan();
         } catch (err) {
           console.error("restoreSession load error:", err);
         }
@@ -2040,12 +2081,25 @@ app.post("/stripe-webhook", express.raw({ type: "application/json" }), async (re
     console.error("No userId found in Stripe session metadata.");
     break;
   }
+console.log("User upgrading:", userId, email);
 
-  try {
-    const { error } = await supabaseAdmin
-      .from("profiles")
-      .update({ plan: "pro" })
-      .eq("id", userId);
+ try {
+  const { error } = await supabaseAdmin
+    .from("profiles")
+    .upsert(
+      {
+        id: userId,
+        email: email,
+        plan: "pro"
+      },
+      { onConflict: "id" } // 🔥 important
+    );
+
+  if (error) {
+    console.error("Supabase upsert error:", error);
+  } else {
+    console.log("User upgraded to PRO:", userId);
+  }
 
     if (error) {
       console.error("Supabase profile update error:", error);
