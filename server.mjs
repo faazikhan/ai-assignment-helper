@@ -1,3 +1,4 @@
+
 import express from "express";
 import OpenAI from "openai";
 
@@ -19,6 +20,8 @@ app.get("/", (_req, res) => {
   <title>AssignHelp AI</title>
 
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2360a5fa'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='6' y='6' width='52' height='52' rx='14' fill='url(%23g)'/%3E%3Ccircle cx='24' cy='24' r='5' fill='white'/%3E%3Ccircle cx='40' cy='22' r='4' fill='white'/%3E%3Ccircle cx='40' cy='40' r='5' fill='white'/%3E%3Cpath d='M24 29 C24 36, 29 40, 36 40' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M29 24 C32 22, 35 22, 36 22' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M40 26 L40 35' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <style>
     * {
@@ -118,7 +121,7 @@ app.get("/", (_req, res) => {
 
     .agreeBox {
       margin-top: 0;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
       padding: 14px 16px;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -160,6 +163,19 @@ app.get("/", (_req, res) => {
     .agreeText {
       display: inline-block;
       vertical-align: middle;
+    }
+
+    .turnstileBox {
+      margin-top: 0;
+      data-callback="onTurnstileSuccess"margin-bottom: 24px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 92px;
     }
 
     .card {
@@ -527,18 +543,36 @@ app.get("/", (_req, res) => {
     </label>
   </div>
 
+  <div class="turnstileBox">
+  <div
+    class="cf-turnstile"
+    data-sitekey="0x4AAAAAADAROFfpSG40QUrP"
+    data-callback="onTurnstileSuccess"
+    data-theme="light">
+  </div>
+</div>
+
   <div class="card">
     <h2>Account</h2>
 
     <div id="authForm">
-      <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
-      <button id="signupBtn">Signup</button>
-      <button id="loginBtn">Login</button>
-    </div>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button id="signupBtn">Signup</button>
+  <button id="loginBtn">Login</button>
+  <button id="resendConfirmBtn" class="secondary" type="button">Resend Confirmation Email</button>
+  <button id="forgotPasswordBtn" class="secondary" type="button">Forgot Password</button>
+</div>
 
     <button id="logoutBtn" class="secondary" style="display:none;">Logout</button>
     <div id="authStatus" class="status"></div>
+
+<div id="resetPasswordBox" class="resetPasswordBox" style="display:none;">
+  <h3>Set New Password</h3>
+  <input id="newPasswordInput" type="password" placeholder="Enter new password">
+  <button id="updatePasswordBtn" type="button">Update Password</button>
+</div>
+
     <div id="userInfo" class="muted">Not logged in</div>
     <div id="usageBox">Free questions used: 0 / 5</div>
   </div>
@@ -576,11 +610,23 @@ app.get("/", (_req, res) => {
     const SUPABASE_URL = "https://yekfcakmrgjpubqtyqxv.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_mUBE7hZ3g_wCQHRrrF_-3A_Sk3LSEfi";
     const FREE_LIMIT = 5;
-
+const BLOCKED_EMAIL_DOMAINS = [
+  "mailinator.com",
+  "guerrillamail.com",
+  "10minutemail.com",
+  "temp-mail.org",
+  "tempmail.com",
+  "yopmail.com",
+  "dispostable.com",
+  "throwawaymail.com",
+  "fakeinbox.com",
+  "sharklasers.com"
+];
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let usageCount = 0;
+    let captchaToken = "";
 
     const authStatus = document.getElementById("authStatus");
     const askStatus = document.getElementById("askStatus");
@@ -595,6 +641,8 @@ app.get("/", (_req, res) => {
 
     const signupBtn = document.getElementById("signupBtn");
     const loginBtn = document.getElementById("loginBtn");
+    const resendConfirmBtn = document.getElementById("resendConfirmBtn");
+    const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const authForm = document.getElementById("authForm");
     const askBtn = document.getElementById("askBtn");
@@ -603,10 +651,44 @@ app.get("/", (_req, res) => {
     const wordCountBox = document.getElementById("wordCount");
     const agreeCheckbox = document.getElementById("agreeCheckbox");
 
+    const newPasswordInput = document.getElementById("newPasswordInput");
+const updatePasswordBtn = document.getElementById("updatePasswordBtn");
+
     function setStatus(el, message, type) {
       el.className = "status " + type;
       el.textContent = message;
     }
+
+   function onTurnstileSuccess(token) {
+    captchaToken = token;
+    }
+
+function checkForPasswordReset() {
+  const hash = window.location.hash;
+
+  // check if this is a recovery link
+  if (hash && hash.includes("type=recovery")) {
+    showResetPasswordUI();
+  }
+}
+
+function showResetPasswordUI() {
+  document.getElementById("resetPasswordBox").style.display = "block";
+
+  // optional: hide login/signup form
+  authForm.style.display = "none";
+}
+
+function isBlockedEmailDomain(email) {
+  const parts = String(email || "").toLowerCase().split("@");
+  if (parts.length !== 2) return false;
+
+  const domain = parts[1].trim();
+
+  return BLOCKED_EMAIL_DOMAINS.some(
+    blocked => domain === blocked || domain.endsWith("." + blocked)
+  );
+}
 
     function clearStatus(el) {
       el.className = "status";
@@ -652,6 +734,7 @@ app.get("/", (_req, res) => {
       return marked.parse(String(text || ""));
     }
 
+    
     async function copyToClipboard(text, button) {
       try {
         await navigator.clipboard.writeText(String(text || ""));
@@ -756,6 +839,38 @@ app.get("/", (_req, res) => {
       askBtn.style.cursor = text ? "pointer" : "not-allowed";
     }
 
+
+
+async function updatePassword() {
+  clearStatus(authStatus);
+
+  const newPassword = newPasswordInput.value.trim();
+
+  if (!newPassword) {
+    setStatus(authStatus, "Please enter a new password.", "error");
+    return;
+  }
+
+  const { error } = await sb.auth.updateUser({
+    password: newPassword
+  });
+
+  if (error) {
+    setStatus(authStatus, error.message, "error");
+    return;
+  }
+
+  setStatus(authStatus, "Password updated successfully.", "success");
+
+  // optional: hide reset box after success
+  document.getElementById("resetPasswordBox").style.display = "none";
+
+  // optional: show normal login form again
+  authForm.style.display = "block";
+}
+
+
+
     async function ensureUsageRow() {
       const { data, error } = await sb
         .from("user_usage")
@@ -787,31 +902,100 @@ app.get("/", (_req, res) => {
       updateUsageBox();
     }
 
+
+async function resendConfirmation() {
+  clearStatus(authStatus);
+
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    setStatus(authStatus, "Please enter your email first.", "error");
+    return;
+  }
+
+  if (!captchaToken) {
+    setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
+    return;
+  }
+
+  const { error } = await sb.auth.resend({
+    type: "signup",
+    email: email,
+    options: {
+      emailRedirectTo: window.location.origin,
+      captchaToken: captchaToken
+    }
+  });
+
+  if (error) {
+    captchaToken = "";
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+    setStatus(authStatus, error.message, "error");
+    return;
+  }
+
+  captchaToken = "";
+  if (window.turnstile) {
+    window.turnstile.reset();
+  }
+
+  setStatus(
+    authStatus,
+    "Confirmation email sent. Please check your inbox and spam folder.",
+    "success"
+  );
+}
     async function signup() {
       clearStatus(authStatus);
 
       const email = emailInput.value.trim();
       const password = passwordInput.value;
-
+      
       if (!email || !password) {
         setStatus(authStatus, "Please enter email and password.", "error");
         return;
       }
+
+if (isBlockedEmailDomain(email)) {
+  setStatus(
+    authStatus,
+    "Please use a valid personal or institutional email address. Temporary email services are not allowed.",
+    "error"
+  );
+  return;
+}
 
       if (!agreeCheckbox.checked) {
         setStatus(authStatus, "Please confirm that you will use this platform for learning purposes only.", "error");
         return;
       }
 
+      if (!captchaToken) {
+        setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
+        return;
+      }
+
+      const redirectUrl = window.location.origin;
+
       const { data, error } = await sb.auth.signUp({
         email: email,
-        password: password
+        password: password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          captchaToken: captchaToken
+        }
       });
 
       if (error) {
-        setStatus(authStatus, error.message, "error");
-        return;
-      }
+  captchaToken = "";
+  if (window.turnstile) {
+    window.turnstile.reset();
+  }
+  setStatus(authStatus, error.message, "error");
+  return;
+}
 
       if (data.user) {
         const { error: profileError } = await sb.from("profiles").upsert({
@@ -833,9 +1017,60 @@ app.get("/", (_req, res) => {
           console.error("usage upsert error:", usageError);
         }
       }
+captchaToken = "";
+if (window.turnstile) {
+  window.turnstile.reset();
+}
 
-      setStatus(authStatus, "Signup successful. Now click Login.", "success");
+      setStatus(
+        authStatus,
+       
+        "Signup successful. Please check your email and click the confirmation link before logging in.",
+        "success"
+      );
     }
+
+
+async function forgotPassword() {
+  clearStatus(authStatus);
+
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    setStatus(authStatus, "Please enter your email first.", "error");
+    return;
+  }
+
+  if (!captchaToken) {
+    setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
+    return;
+  }
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
+    captchaToken: captchaToken
+  });
+
+  if (error) {
+    captchaToken = "";
+    if (window.turnstile) {
+      window.turnstile.reset();
+    }
+    setStatus(authStatus, error.message, "error");
+    return;
+  }
+
+  captchaToken = "";
+  if (window.turnstile) {
+    window.turnstile.reset();
+  }
+
+  setStatus(
+    authStatus,
+    "Password reset email sent. Please check your inbox.",
+    "success"
+  );
+}
 
     async function login() {
       clearStatus(authStatus);
@@ -847,23 +1082,53 @@ app.get("/", (_req, res) => {
         setStatus(authStatus, "Please enter email and password.", "error");
         return;
       }
-
+if (!captchaToken) {
+  setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
+  return;
+}
       if (!agreeCheckbox.checked) {
         setStatus(authStatus, "Please confirm that you will use this platform for learning purposes only.", "error");
         return;
       }
 
       const { data, error } = await sb.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
+  email: email,
+  password: password,
+  options: {
+    captchaToken: captchaToken
+  }
+});
 
       if (error) {
-        setStatus(authStatus, error.message, "error");
-        return;
-      }
+  captchaToken = "";
+  if (window.turnstile) {
+    window.turnstile.reset();
+  }
+
+  const msg = String(error.message || "").toLowerCase();
+
+  if (
+    msg.includes("email not confirmed") ||
+    msg.includes("email not verified") ||
+    msg.includes("confirm")
+  ) {
+    setStatus(
+      authStatus,
+      "Please confirm your email address first. Check your inbox and spam folder.",
+      "error"
+    );
+  } else {
+    setStatus(authStatus, error.message, "error");
+  }
+  return;
+}
 
       currentUser = data.user;
+captchaToken = "";
+
+if (window.turnstile) {
+  window.turnstile.reset();
+}
       updateAuthVisibility();
       updateUserInfo();
 
@@ -871,6 +1136,7 @@ app.get("/", (_req, res) => {
         await ensureUsageRow();
         await loadHistory();
         setStatus(authStatus, "Logged in successfully.", "success");
+
       } catch (err) {
         console.error(err);
         setStatus(authStatus, "Login worked, but loading user data failed.", "error");
@@ -1111,6 +1377,17 @@ app.get("/", (_req, res) => {
 
     if (signupBtn) signupBtn.addEventListener("click", signup);
     if (loginBtn) loginBtn.addEventListener("click", login);
+    if (resendConfirmBtn) resendConfirmBtn.addEventListener("click", resendConfirmation);
+    if (forgotPasswordBtn) {
+  forgotPasswordBtn.addEventListener("click", forgotPassword);
+
+}
+
+if (updatePasswordBtn) {
+  updatePasswordBtn.addEventListener("click", updatePassword);
+}
+
+
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
     if (askBtn) askBtn.addEventListener("click", ask);
     if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
@@ -1126,6 +1403,8 @@ app.get("/", (_req, res) => {
       updateAskButtonState();
       updateAuthButtons();
       await restoreSession();
+ checkForPasswordReset();
+
     });
   </script>
 </div>
