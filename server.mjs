@@ -166,17 +166,17 @@ app.get("/", (_req, res) => {
     }
 
     .turnstileBox {
-      margin-top: 0;
-      data-callback="onTurnstileSuccess"margin-bottom: 24px;
-      padding: 14px 16px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 92px;
-    }
+  margin-top: 0;
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 92px;
+}
 
     .card {
       background: rgba(255,255,255,0.9);
@@ -663,15 +663,13 @@ const updatePasswordBtn = document.getElementById("updatePasswordBtn");
     captchaToken = token;
     }
 
-function checkForPasswordReset() {
-  const hash = window.location.hash;
-
-  // check if this is a recovery link
-  if (hash && hash.includes("type=recovery")) {
-    showResetPasswordUI();
-  }
+function setupPasswordRecoveryListener() {
+  sb.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") {
+      showResetPasswordUI();
+    }
+  });
 }
-
 function showResetPasswordUI() {
   document.getElementById("resetPasswordBox").style.display = "block";
 
@@ -1046,10 +1044,10 @@ async function forgotPassword() {
     return;
   }
 
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin,
-    captchaToken: captchaToken
-  });
+ const { error } = await sb.auth.resetPasswordForEmail(email, {
+  redirectTo: window.location.origin + "/reset-password",
+  captchaToken: captchaToken
+});
 
   if (error) {
     captchaToken = "";
@@ -1402,8 +1400,9 @@ if (updatePasswordBtn) {
       updateWordCount();
       updateAskButtonState();
       updateAuthButtons();
+      setupPasswordRecoveryListener();
       await restoreSession();
- checkForPasswordReset();
+ 
 
     });
   </script>
