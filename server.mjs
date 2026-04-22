@@ -1,4 +1,3 @@
-
 import express from "express";
 import OpenAI from "openai";
 
@@ -166,17 +165,17 @@ app.get("/", (_req, res) => {
     }
 
     .turnstileBox {
-  margin-top: 0;
-  margin-bottom: 24px;
-  padding: 14px 16px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 92px;
-}
+      margin-top: 0;
+      margin-bottom: 24px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 92px;
+    }
 
     .card {
       background: rgba(255,255,255,0.9);
@@ -544,35 +543,28 @@ app.get("/", (_req, res) => {
   </div>
 
   <div class="turnstileBox">
-  <div
-    class="cf-turnstile"
-    data-sitekey="0x4AAAAAADAROFfpSG40QUrP"
-    data-callback="onTurnstileSuccess"
-    data-theme="light">
+    <div
+      class="cf-turnstile"
+      data-sitekey="0x4AAAAAADAROFfpSG40QUrP"
+      data-callback="onTurnstileSuccess"
+      data-theme="light">
+    </div>
   </div>
-</div>
 
   <div class="card">
     <h2>Account</h2>
 
     <div id="authForm">
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="signupBtn">Signup</button>
-  <button id="loginBtn">Login</button>
-  <button id="resendConfirmBtn" class="secondary" type="button">Resend Confirmation Email</button>
-  <button id="forgotPasswordBtn" class="secondary" type="button">Forgot Password</button>
-</div>
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+      <button id="signupBtn">Signup</button>
+      <button id="loginBtn">Login</button>
+      <button id="resendConfirmBtn" class="secondary" type="button">Resend Confirmation Email</button>
+      <button id="forgotPasswordBtn" class="secondary" type="button">Forgot Password</button>
+    </div>
 
     <button id="logoutBtn" class="secondary" style="display:none;">Logout</button>
     <div id="authStatus" class="status"></div>
-
-<div id="resetPasswordBox" class="resetPasswordBox" style="display:none;">
-  <h3>Set New Password</h3>
-  <input id="newPasswordInput" type="password" placeholder="Enter new password">
-  <button id="updatePasswordBtn" type="button">Update Password</button>
-</div>
-
     <div id="userInfo" class="muted">Not logged in</div>
     <div id="usageBox">Free questions used: 0 / 5</div>
   </div>
@@ -610,18 +602,20 @@ app.get("/", (_req, res) => {
     const SUPABASE_URL = "https://yekfcakmrgjpubqtyqxv.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_mUBE7hZ3g_wCQHRrrF_-3A_Sk3LSEfi";
     const FREE_LIMIT = 5;
-const BLOCKED_EMAIL_DOMAINS = [
-  "mailinator.com",
-  "guerrillamail.com",
-  "10minutemail.com",
-  "temp-mail.org",
-  "tempmail.com",
-  "yopmail.com",
-  "dispostable.com",
-  "throwawaymail.com",
-  "fakeinbox.com",
-  "sharklasers.com"
-];
+
+    const BLOCKED_EMAIL_DOMAINS = [
+      "mailinator.com",
+      "guerrillamail.com",
+      "10minutemail.com",
+      "temp-mail.org",
+      "tempmail.com",
+      "yopmail.com",
+      "dispostable.com",
+      "throwawaymail.com",
+      "fakeinbox.com",
+      "sharklasers.com"
+    ];
+
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
@@ -651,46 +645,29 @@ const BLOCKED_EMAIL_DOMAINS = [
     const wordCountBox = document.getElementById("wordCount");
     const agreeCheckbox = document.getElementById("agreeCheckbox");
 
-    const newPasswordInput = document.getElementById("newPasswordInput");
-const updatePasswordBtn = document.getElementById("updatePasswordBtn");
-
     function setStatus(el, message, type) {
       el.className = "status " + type;
       el.textContent = message;
     }
 
-   function onTurnstileSuccess(token) {
-    captchaToken = token;
-    }
-
-function setupPasswordRecoveryListener() {
-  sb.auth.onAuthStateChange((event) => {
-    if (event === "PASSWORD_RECOVERY") {
-      showResetPasswordUI();
-    }
-  });
-}
-function showResetPasswordUI() {
-  document.getElementById("resetPasswordBox").style.display = "block";
-
-  // optional: hide login/signup form
-  authForm.style.display = "none";
-}
-
-function isBlockedEmailDomain(email) {
-  const parts = String(email || "").toLowerCase().split("@");
-  if (parts.length !== 2) return false;
-
-  const domain = parts[1].trim();
-
-  return BLOCKED_EMAIL_DOMAINS.some(
-    blocked => domain === blocked || domain.endsWith("." + blocked)
-  );
-}
-
     function clearStatus(el) {
       el.className = "status";
       el.textContent = "";
+    }
+
+    function onTurnstileSuccess(token) {
+      captchaToken = token;
+    }
+
+    function isBlockedEmailDomain(email) {
+      const parts = String(email || "").toLowerCase().split("@");
+      if (parts.length !== 2) return false;
+
+      const domain = parts[1].trim();
+
+      return BLOCKED_EMAIL_DOMAINS.some(
+        blocked => domain === blocked || domain.endsWith("." + blocked)
+      );
     }
 
     function updateUsageBox() {
@@ -732,7 +709,6 @@ function isBlockedEmailDomain(email) {
       return marked.parse(String(text || ""));
     }
 
-    
     async function copyToClipboard(text, button) {
       try {
         await navigator.clipboard.writeText(String(text || ""));
@@ -837,37 +813,12 @@ function isBlockedEmailDomain(email) {
       askBtn.style.cursor = text ? "pointer" : "not-allowed";
     }
 
-
-
-async function updatePassword() {
-  clearStatus(authStatus);
-
-  const newPassword = newPasswordInput.value.trim();
-
-  if (!newPassword) {
-    setStatus(authStatus, "Please enter a new password.", "error");
-    return;
-  }
-
-  const { error } = await sb.auth.updateUser({
-    password: newPassword
-  });
-
-  if (error) {
-    setStatus(authStatus, error.message, "error");
-    return;
-  }
-
-  setStatus(authStatus, "Password updated successfully.", "success");
-
-  // optional: hide reset box after success
-  document.getElementById("resetPasswordBox").style.display = "none";
-
-  // optional: show normal login form again
-  authForm.style.display = "block";
-}
-
-
+    function resetCaptcha() {
+      captchaToken = "";
+      if (window.turnstile) {
+        window.turnstile.reset();
+      }
+    }
 
     async function ensureUsageRow() {
       const { data, error } = await sb
@@ -900,70 +851,63 @@ async function updatePassword() {
       updateUsageBox();
     }
 
+    async function resendConfirmation() {
+      clearStatus(authStatus);
 
-async function resendConfirmation() {
-  clearStatus(authStatus);
+      const email = emailInput.value.trim();
 
-  const email = emailInput.value.trim();
+      if (!email) {
+        setStatus(authStatus, "Please enter your email first.", "error");
+        return;
+      }
 
-  if (!email) {
-    setStatus(authStatus, "Please enter your email first.", "error");
-    return;
-  }
+      if (!captchaToken) {
+        setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
+        return;
+      }
 
-  if (!captchaToken) {
-    setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
-    return;
-  }
+      const { error } = await sb.auth.resend({
+        type: "signup",
+        email: email,
+        options: {
+          emailRedirectTo: window.location.origin,
+          captchaToken: captchaToken
+        }
+      });
 
-  const { error } = await sb.auth.resend({
-    type: "signup",
-    email: email,
-    options: {
-      emailRedirectTo: window.location.origin,
-      captchaToken: captchaToken
+      if (error) {
+        resetCaptcha();
+        setStatus(authStatus, error.message, "error");
+        return;
+      }
+
+      resetCaptcha();
+      setStatus(
+        authStatus,
+        "Confirmation email sent. Please check your inbox and spam folder.",
+        "success"
+      );
     }
-  });
 
-  if (error) {
-    captchaToken = "";
-    if (window.turnstile) {
-      window.turnstile.reset();
-    }
-    setStatus(authStatus, error.message, "error");
-    return;
-  }
-
-  captchaToken = "";
-  if (window.turnstile) {
-    window.turnstile.reset();
-  }
-
-  setStatus(
-    authStatus,
-    "Confirmation email sent. Please check your inbox and spam folder.",
-    "success"
-  );
-}
     async function signup() {
       clearStatus(authStatus);
 
       const email = emailInput.value.trim();
       const password = passwordInput.value;
-      
+
       if (!email || !password) {
         setStatus(authStatus, "Please enter email and password.", "error");
         return;
       }
 
-if (isBlockedEmailDomain(email)) {
-  setStatus(
-    authStatus,
-    "Please use a valid personal or institutional email address. Temporary email services are not allowed.",
-    "error"
-  );
-  return;
-}
+      if (isBlockedEmailDomain(email)) {
+        setStatus(
+          authStatus,
+          "Please use a valid personal or institutional email address. Temporary email services are not allowed.",
+          "error"
+        );
+        return;
+      }
 
       if (!agreeCheckbox.checked) {
         setStatus(authStatus, "Please confirm that you will use this platform for learning purposes only.", "error");
@@ -975,25 +919,20 @@ if (isBlockedEmailDomain(email)) {
         return;
       }
 
-      const redirectUrl = window.location.origin;
-
       const { data, error } = await sb.auth.signUp({
         email: email,
         password: password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: window.location.origin,
           captchaToken: captchaToken
         }
       });
 
       if (error) {
-  captchaToken = "";
-  if (window.turnstile) {
-    window.turnstile.reset();
-  }
-  setStatus(authStatus, error.message, "error");
-  return;
-}
+        resetCaptcha();
+        setStatus(authStatus, error.message, "error");
+        return;
+      }
 
       if (data.user) {
         const { error: profileError } = await sb.from("profiles").upsert({
@@ -1015,60 +954,50 @@ if (isBlockedEmailDomain(email)) {
           console.error("usage upsert error:", usageError);
         }
       }
-captchaToken = "";
-if (window.turnstile) {
-  window.turnstile.reset();
-}
+
+      resetCaptcha();
 
       setStatus(
         authStatus,
-       
         "Signup successful. Please check your email and click the confirmation link before logging in.",
         "success"
       );
     }
 
+    async function forgotPassword() {
+      clearStatus(authStatus);
 
-async function forgotPassword() {
-  clearStatus(authStatus);
+      const email = emailInput.value.trim();
 
-  const email = emailInput.value.trim();
+      if (!email) {
+        setStatus(authStatus, "Please enter your email first.", "error");
+        return;
+      }
 
-  if (!email) {
-    setStatus(authStatus, "Please enter your email first.", "error");
-    return;
-  }
+      if (!captchaToken) {
+        setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
+        return;
+      }
 
-  if (!captchaToken) {
-    setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
-    return;
-  }
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/reset-password",
+        captchaToken: captchaToken
+      });
 
- const { error } = await sb.auth.resetPasswordForEmail(email, {
-  redirectTo: window.location.origin + "/reset-password",
-  captchaToken: captchaToken
-});
+      if (error) {
+        resetCaptcha();
+        setStatus(authStatus, error.message, "error");
+        return;
+      }
 
-  if (error) {
-    captchaToken = "";
-    if (window.turnstile) {
-      window.turnstile.reset();
+      resetCaptcha();
+
+      setStatus(
+        authStatus,
+        "Password reset email sent. Please check your inbox.",
+        "success"
+      );
     }
-    setStatus(authStatus, error.message, "error");
-    return;
-  }
-
-  captchaToken = "";
-  if (window.turnstile) {
-    window.turnstile.reset();
-  }
-
-  setStatus(
-    authStatus,
-    "Password reset email sent. Please check your inbox.",
-    "success"
-  );
-}
 
     async function login() {
       clearStatus(authStatus);
@@ -1080,53 +1009,48 @@ async function forgotPassword() {
         setStatus(authStatus, "Please enter email and password.", "error");
         return;
       }
-if (!captchaToken) {
-  setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
-  return;
-}
+
+      if (!captchaToken) {
+        setStatus(authStatus, "Please complete the CAPTCHA first.", "error");
+        return;
+      }
+
       if (!agreeCheckbox.checked) {
         setStatus(authStatus, "Please confirm that you will use this platform for learning purposes only.", "error");
         return;
       }
 
       const { data, error } = await sb.auth.signInWithPassword({
-  email: email,
-  password: password,
-  options: {
-    captchaToken: captchaToken
-  }
-});
+        email: email,
+        password: password,
+        options: {
+          captchaToken: captchaToken
+        }
+      });
 
       if (error) {
-  captchaToken = "";
-  if (window.turnstile) {
-    window.turnstile.reset();
-  }
+        resetCaptcha();
 
-  const msg = String(error.message || "").toLowerCase();
+        const msg = String(error.message || "").toLowerCase();
 
-  if (
-    msg.includes("email not confirmed") ||
-    msg.includes("email not verified") ||
-    msg.includes("confirm")
-  ) {
-    setStatus(
-      authStatus,
-      "Please confirm your email address first. Check your inbox and spam folder.",
-      "error"
-    );
-  } else {
-    setStatus(authStatus, error.message, "error");
-  }
-  return;
-}
+        if (
+          msg.includes("email not confirmed") ||
+          msg.includes("email not verified") ||
+          msg.includes("confirm")
+        ) {
+          setStatus(
+            authStatus,
+            "Please confirm your email address first. Check your inbox and spam folder.",
+            "error"
+          );
+        } else {
+          setStatus(authStatus, error.message, "error");
+        }
+        return;
+      }
 
       currentUser = data.user;
-captchaToken = "";
-
-if (window.turnstile) {
-  window.turnstile.reset();
-}
+      resetCaptcha();
       updateAuthVisibility();
       updateUserInfo();
 
@@ -1134,7 +1058,6 @@ if (window.turnstile) {
         await ensureUsageRow();
         await loadHistory();
         setStatus(authStatus, "Logged in successfully.", "success");
-
       } catch (err) {
         console.error(err);
         setStatus(authStatus, "Login worked, but loading user data failed.", "error");
@@ -1376,16 +1299,7 @@ if (window.turnstile) {
     if (signupBtn) signupBtn.addEventListener("click", signup);
     if (loginBtn) loginBtn.addEventListener("click", login);
     if (resendConfirmBtn) resendConfirmBtn.addEventListener("click", resendConfirmation);
-    if (forgotPasswordBtn) {
-  forgotPasswordBtn.addEventListener("click", forgotPassword);
-
-}
-
-if (updatePasswordBtn) {
-  updatePasswordBtn.addEventListener("click", updatePassword);
-}
-
-
+    if (forgotPasswordBtn) forgotPasswordBtn.addEventListener("click", forgotPassword);
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
     if (askBtn) askBtn.addEventListener("click", ask);
     if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
@@ -1400,13 +1314,236 @@ if (updatePasswordBtn) {
       updateWordCount();
       updateAskButtonState();
       updateAuthButtons();
-      setupPasswordRecoveryListener();
       await restoreSession();
- 
-
     });
   </script>
 </div>
+</body>
+</html>`);
+});
+
+app.get("/reset-password", (_req, res) => {
+  res.send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password | AssignHelp AI</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+      color: #111827;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 20px 60px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.94);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
+    }
+
+    h1 {
+      font-size: 38px;
+      margin: 0 0 10px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    p {
+      color: #475569;
+      line-height: 1.7;
+      margin: 0 0 16px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid #dbe3f0;
+      background: #f9fbff;
+      margin-bottom: 14px;
+      font-size: 15px;
+      color: #111827;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      background: #ffffff;
+    }
+
+    button {
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(37, 99, 235, 0.24);
+    }
+
+    .status {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      display: none;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .status.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .backLink {
+      display: inline-block;
+      margin-top: 18px;
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .backLink:hover {
+      text-decoration: underline;
+    }
+
+    .muted {
+      color: #64748b;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    #resetPanel {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Reset Password</h1>
+      <p>Enter your new password below to complete the reset process.</p>
+
+      <div id="resetPanel">
+        <input id="newPasswordInput" type="password" placeholder="Enter new password">
+        <button id="updatePasswordBtn" type="button">Update Password</button>
+      </div>
+
+      <div id="statusBox" class="status"></div>
+      <div id="helperText" class="muted">Waiting for recovery session...</div>
+
+      <a class="backLink" href="/">← Back to Home</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://yekfcakmrgjpubqtyqxv.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_mUBE7hZ3g_wCQHRrrF_-3A_Sk3LSEfi";
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const resetPanel = document.getElementById("resetPanel");
+    const newPasswordInput = document.getElementById("newPasswordInput");
+    const updatePasswordBtn = document.getElementById("updatePasswordBtn");
+    const statusBox = document.getElementById("statusBox");
+    const helperText = document.getElementById("helperText");
+
+    function setStatus(message, type) {
+      statusBox.className = "status " + type;
+      statusBox.textContent = message;
+    }
+
+    function showResetPanel() {
+      resetPanel.style.display = "block";
+      helperText.textContent = "Recovery session detected. You can now set a new password.";
+    }
+
+    function setupPasswordRecoveryListener() {
+      sb.auth.onAuthStateChange((event) => {
+        if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+          showResetPanel();
+        }
+      });
+    }
+
+    async function checkExistingSession() {
+      const { data, error } = await sb.auth.getSession();
+
+      if (error) {
+        setStatus(error.message, "error");
+        helperText.textContent = "Could not verify recovery session.";
+        return;
+      }
+
+      if (data?.session) {
+        showResetPanel();
+      } else {
+        helperText.textContent = "Open this page from the password reset email link.";
+      }
+    }
+
+    async function updatePassword() {
+      const newPassword = newPasswordInput.value.trim();
+
+      if (!newPassword) {
+        setStatus("Please enter a new password.", "error");
+        return;
+      }
+
+      const { error } = await sb.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        setStatus(error.message, "error");
+        return;
+      }
+
+      setStatus("Password updated successfully. You can now go back and log in.", "success");
+      helperText.textContent = "Your password has been changed.";
+      newPasswordInput.value = "";
+    }
+
+    if (updatePasswordBtn) {
+      updatePasswordBtn.addEventListener("click", updatePassword);
+    }
+
+    window.addEventListener("load", async () => {
+      setupPasswordRecoveryListener();
+      await checkExistingSession();
+    });
+  </script>
 </body>
 </html>`);
 });
@@ -1522,12 +1659,9 @@ app.get("/policies", (_req, res) => {
     <div class="card">
       <h2>Privacy Policy</h2>
       <div class="muted">Last updated: 20/4/2026</div>
-
       <p>Welcome to AssignHelp AI. We respect your privacy and are committed to protecting your personal information.</p>
-
       <h3>1. Who we are</h3>
       <p>AssignHelp AI is an online platform that provides study support, explanatory content, and assignment-help guidance for learning purposes only.</p>
-
       <h3>2. What information we collect</h3>
       <ul>
         <li>your name</li>
@@ -1540,7 +1674,6 @@ app.get("/policies", (_req, res) => {
         <li>payment and subscription information processed through third-party providers</li>
         <li>device, browser, IP address, and analytics data</li>
       </ul>
-
       <h3>3. How we collect information</h3>
       <ul>
         <li>create an account</li>
@@ -1550,7 +1683,6 @@ app.get("/policies", (_req, res) => {
         <li>subscribe to a paid plan</li>
         <li>browse or use the website</li>
       </ul>
-
       <h3>4. Why we collect your information</h3>
       <ul>
         <li>create and manage your account</li>
@@ -1562,16 +1694,12 @@ app.get("/policies", (_req, res) => {
         <li>communicate with you about your account, updates, and support requests</li>
         <li>enforce our terms and protect against misuse</li>
       </ul>
-
       <h3>5. Learning-use notice</h3>
       <p>AssignHelp AI is intended to support learning and understanding. Users must not submit generated content as their own work where this would breach academic integrity rules.</p>
-
       <h3>6. Cookies and analytics</h3>
       <p>We may use cookies and similar technologies to keep you logged in, remember preferences, understand site usage, and improve security and performance. You can usually control cookies through your browser settings.</p>
-
       <h3>7. Payments</h3>
       <p>If you subscribe to a paid plan, payment details are usually processed by a third-party payment provider. We do not store full card details on our servers unless explicitly stated.</p>
-
       <h3>8. Disclosure of information</h3>
       <ul>
         <li>payment processors</li>
@@ -1581,25 +1709,18 @@ app.get("/policies", (_req, res) => {
         <li>professional advisers where reasonably necessary</li>
       </ul>
       <p>We do not sell your personal information.</p>
-
       <h3>9. Data storage and security</h3>
       <p>We take reasonable steps to protect personal information from misuse, interference, loss, unauthorised access, modification, or disclosure. However, no online platform can guarantee absolute security.</p>
-
       <h3>10. Access, correction, and deletion</h3>
       <p>You may request access to, correction of, or deletion of your personal information by contacting us at: assignhelpai@gmail.com</p>
-
       <h3>11. International users</h3>
       <p>If you access AssignHelp AI from outside Australia, your information may be processed and stored in other countries where our service providers operate.</p>
-
       <h3>12. Retention</h3>
       <p>We retain personal information only for as long as reasonably necessary for service delivery, compliance, dispute resolution, security, and legitimate business purposes.</p>
-
       <h3>13. Children</h3>
       <p>This website is not intended for children under 13 without parental or guardian supervision.</p>
-
       <h3>14. Complaints</h3>
       <p>If you have a privacy complaint, contact us first at: assignhelpai@gmail.com. We will try to respond within a reasonable time.</p>
-
       <h3>15. Changes to this policy</h3>
       <p>We may update this Privacy Policy from time to time. The latest version will always be posted on this page with the updated date.</p>
     </div>
@@ -1607,15 +1728,11 @@ app.get("/policies", (_req, res) => {
     <div class="card">
       <h2>Refund Policy</h2>
       <div class="muted">Last updated: 20/4/2026</div>
-
       <p>This Refund Policy applies to subscriptions and paid services purchased through AssignHelp AI.</p>
-
       <h3>1. Free plan</h3>
       <p>We offer a free plan with limited usage so users can try the platform before subscribing.</p>
-
       <h3>2. Pro subscriptions</h3>
       <p>If you upgrade to Pro, you will receive access to paid features for the billing period selected at checkout.</p>
-
       <h3>3. Change-of-mind refunds</h3>
       <p>Unless required by law, we do not provide refunds for:</p>
       <ul>
@@ -1624,7 +1741,6 @@ app.get("/policies", (_req, res) => {
         <li>failure to use the subscription</li>
         <li>dissatisfaction based on personal preference alone</li>
       </ul>
-
       <h3>4. When refunds may be available</h3>
       <p>We may consider a full or partial refund where:</p>
       <ul>
@@ -1633,10 +1749,8 @@ app.get("/policies", (_req, res) => {
         <li>the service was unavailable for a substantial period due to our fault</li>
         <li>required by applicable consumer law</li>
       </ul>
-
       <h3>5. Consumer rights</h3>
       <p>Nothing in this policy excludes, limits, or replaces rights you may have under the Australian Consumer Law or other applicable laws.</p>
-
       <h3>6. Cancelling subscriptions</h3>
       <p>You may cancel your subscription at any time. Unless stated otherwise at checkout:</p>
       <ul>
@@ -1644,7 +1758,6 @@ app.get("/policies", (_req, res) => {
         <li>your access continues until the end of the current billing period</li>
         <li>cancellation does not automatically create a refund for the current period</li>
       </ul>
-
       <h3>7. Requesting a refund</h3>
       <p>To request a refund, email: assignhelpai@gmail.com</p>
       <p>Include:</p>
@@ -1654,10 +1767,8 @@ app.get("/policies", (_req, res) => {
         <li>payment reference</li>
         <li>reason for the request</li>
       </ul>
-
       <h3>8. Processing time</h3>
       <p>If a refund is approved, it will usually be returned to the original payment method within a reasonable processing period, depending on your payment provider.</p>
-
       <h3>9. Chargebacks</h3>
       <p>If you believe a payment was made in error, please contact us first so we can try to resolve it before a chargeback is initiated.</p>
     </div>
@@ -1665,15 +1776,11 @@ app.get("/policies", (_req, res) => {
     <div class="card">
       <h2>Terms and Conditions</h2>
       <div class="muted">Last updated: 20/4/2026</div>
-
       <p>By accessing or using AssignHelp AI, you agree to these Terms and Conditions.</p>
-
       <h3>1. About the service</h3>
       <p>AssignHelp AI is an online platform that provides educational support, explanations, and study assistance. It is intended for learning purposes only.</p>
-
       <h3>2. Eligibility</h3>
       <p>You must be at least 18 years old, or have permission from a parent, guardian, school, or other lawful authority to use this website.</p>
-
       <h3>3. Acceptable use</h3>
       <p>You agree to use the platform lawfully and responsibly. You must not:</p>
       <ul>
@@ -1683,10 +1790,8 @@ app.get("/policies", (_req, res) => {
         <li>attempt unauthorised access to accounts, systems, or data</li>
         <li>use the service to create unlawful, harmful, defamatory, or fraudulent material</li>
       </ul>
-
       <h3>4. Academic integrity</h3>
       <p>The platform is designed to help users understand concepts and improve learning. You are responsible for how you use any output. AssignHelp AI does not accept responsibility for plagiarism, academic penalties, or misuse of content.</p>
-
       <h3>5. Accounts</h3>
       <p>You are responsible for:</p>
       <ul>
@@ -1695,7 +1800,6 @@ app.get("/policies", (_req, res) => {
         <li>providing accurate account information</li>
       </ul>
       <p>We may suspend or terminate accounts that breach these Terms.</p>
-
       <h3>6. Free and paid access</h3>
       <p>We may offer:</p>
       <ul>
@@ -1703,7 +1807,6 @@ app.get("/policies", (_req, res) => {
         <li>paid plans with additional or ongoing access</li>
       </ul>
       <p>We may change features, limits, or pricing from time to time with reasonable notice where required.</p>
-
       <h3>7. Payments and renewals</h3>
       <p>If you purchase a subscription:</p>
       <ul>
@@ -1711,23 +1814,17 @@ app.get("/policies", (_req, res) => {
         <li>recurring plans may renew automatically unless cancelled</li>
         <li>you are responsible for applicable taxes, fees, and payment obligations</li>
       </ul>
-
       <h3>8. Refunds</h3>
       <p>Refunds are governed by our Refund Policy and any rights you have under applicable law.</p>
-
       <h3>9. Intellectual property</h3>
       <p>All website content, branding, software, design, and non-user-generated materials on AssignHelp AI remain our property or the property of our licensors.</p>
       <p>You retain rights in content you submit, but you grant us a limited right to process, store, and use it to operate and improve the service.</p>
-
       <h3>10. Generated content</h3>
       <p>We do not guarantee that generated content will be fully accurate, complete, suitable for your institution’s rules, or free from errors. You must review and use your own judgment before relying on any output.</p>
-
       <h3>11. Availability</h3>
       <p>We aim to keep the service available, but we do not guarantee uninterrupted or error-free access. We may suspend, update, or modify the service at any time.</p>
-
       <h3>12. Third-party services</h3>
       <p>We may use third-party services such as hosting, analytics, authentication, and payment providers. Your use of those elements may also be subject to their terms and policies.</p>
-
       <h3>13. Limitation of liability</h3>
       <p>To the maximum extent permitted by law, AssignHelp AI is not liable for:</p>
       <ul>
@@ -1738,22 +1835,16 @@ app.get("/policies", (_req, res) => {
         <li>temporary service interruptions</li>
       </ul>
       <p>Nothing in these Terms excludes rights that cannot lawfully be excluded.</p>
-
       <h3>14. Indemnity</h3>
       <p>You agree to indemnify us against claims, losses, and expenses arising from your misuse of the platform or your breach of these Terms to the extent permitted by law.</p>
-
       <h3>15. Privacy</h3>
       <p>Your use of the website is also governed by our Privacy Policy.</p>
-
       <h3>16. Termination</h3>
       <p>We may suspend or terminate your access if you breach these Terms or misuse the platform.</p>
-
       <h3>17. Changes to terms</h3>
       <p>We may update these Terms from time to time. Continued use of the website after updated Terms are posted means you accept the revised Terms.</p>
-
       <h3>18. Governing law</h3>
       <p>These Terms are governed by the laws of South Australia, Australia, unless another mandatory law applies.</p>
-
       <h3>19. Contact</h3>
       <p>For questions, complaints, or legal notices, contact: assignhelpai@gmail.com.</p>
     </div>
