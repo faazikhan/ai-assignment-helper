@@ -703,7 +703,7 @@ app.get("/", (_req, res) => {
   }
 
   usageBox.style.display = "block"; // show for free users
-  usageBox.textContent = `Free questions used: ${usageCount} / ${FREE_LIMIT}`;
+  usageBox.textContent = "Free questions used: " + usageCount + " / " + FREE_LIMIT;
 }
 
     function updateAuthVisibility() {
