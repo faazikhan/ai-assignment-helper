@@ -1,3 +1,4 @@
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import express from "express";
 import OpenAI from "openai";
 import Stripe from "stripe";
@@ -22,6 +23,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID;
 const APP_URL = process.env.APP_URL || "http://localhost:3000";
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+
+const supabaseAdmin = createSupabaseClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 app.get("/", (_req, res) => {
   res.send(`<!doctype html>
@@ -1973,6 +1979,7 @@ app.post("/create-checkout-session", async (req, res) => {
     }
 
     const session = await stripe.checkout.sessions.create({
+
       mode: "subscription",
       payment_method_types: ["card"],
       customer_email: email,
@@ -1983,6 +1990,12 @@ app.post("/create-checkout-session", async (req, res) => {
           quantity: 1
         }
       ],
+
+metadata: {
+  userId: userId,
+  email: email
+},
+
       success_url: APP_URL + "/?checkout=success",
       cancel_url: APP_URL + "/?checkout=cancelled"
     });
@@ -2013,9 +2026,38 @@ app.post("/stripe-webhook", express.raw({ type: "application/json" }), async (re
   console.log("Stripe webhook received:", event.type);
 
   switch (event.type) {
-    case "checkout.session.completed":
-      console.log("Checkout completed");
-      break;
+    case "checkout.session.completed": {
+  console.log("Checkout completed");
+
+  const session = event.data.object;
+
+  const userId = session.metadata?.userId;
+  const email = session.metadata?.email;
+
+  console.log("User upgrading:", userId, email);
+
+  if (!userId) {
+    console.error("No userId found in Stripe session metadata.");
+    break;
+  }
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ plan: "pro" })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Supabase profile update error:", error);
+    } else {
+      console.log("User upgraded to PRO:", userId);
+    }
+  } catch (err) {
+    console.error("Webhook DB error:", err);
+  }
+
+  break;
+}
 
     case "customer.subscription.updated":
       console.log("Subscription updated");
