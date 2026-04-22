@@ -697,8 +697,14 @@ app.get("/", (_req, res) => {
     }
 
     function updateUsageBox() {
-      usageBox.textContent = "Free questions used: " + usageCount + " / " + FREE_LIMIT;
-    }
+  if (currentPlan === "pro") {
+    usageBox.style.display = "none"; // 🔥 hide for pro users
+    return;
+  }
+
+  usageBox.style.display = "block"; // show for free users
+  usageBox.textContent = `Free questions used: ${usageCount} / ${FREE_LIMIT}`;
+}
 
     function updateAuthVisibility() {
   if (currentUser) {
@@ -879,6 +885,7 @@ async function loadCurrentPlan() {
 
   currentPlan = data?.plan || "free";
   updateUpgradeVisibility();
+  updateUsageBox();
 }
 
 
@@ -1331,6 +1338,7 @@ async function upgradeToPro() {
         const plan = profile?.plan || "free";
         currentPlan = plan;
         updateUpgradeVisibility();
+        updateUsageBox();
         const { error: usageError } = await sb
           .from("user_usage")
           .update({ questions_used: usageCount })
