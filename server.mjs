@@ -568,7 +568,8 @@ app.get("/", (_req, res) => {
       <button id="loginBtn">Login</button>
       <button id="resendConfirmBtn" class="secondary" type="button">Resend Confirmation Email</button>
       <button id="forgotPasswordBtn" class="secondary" type="button">Forgot Password</button>
-    </div>
+      <button id="upgradeBtn">Upgrade to Pro ($9.99/month)</button>
+   </div>
 
     <button id="logoutBtn" class="secondary" style="display:none;">Logout</button>
     <div id="authStatus" class="status"></div>
@@ -645,6 +646,7 @@ app.get("/", (_req, res) => {
     const resendConfirmBtn = document.getElementById("resendConfirmBtn");
     const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const upgradeBtn = document.getElementById("upgradeBtn");
     const authForm = document.getElementById("authForm");
     const askBtn = document.getElementById("askBtn");
     const clearHistoryBtn = document.getElementById("clearHistoryBtn");
@@ -895,6 +897,46 @@ app.get("/", (_req, res) => {
         "success"
       );
     }
+
+async function upgradeToPro() {
+  clearStatus(authStatus);
+
+  if (!currentUser) {
+    setStatus(authStatus, "Please login first.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: currentUser.id,
+        email: currentUser.email
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setStatus(authStatus, data.error || "Failed to start payment.", "error");
+      return;
+    }
+
+    if (!data.url) {
+      setStatus(authStatus, "No checkout URL returned.", "error");
+      return;
+    }
+
+    window.location.href = data.url;
+  } catch (err) {
+    console.error("upgradeToPro error:", err);
+    setStatus(authStatus, "Something went wrong starting checkout.", "error");
+  }
+}
+
 
     async function signup() {
       clearStatus(authStatus);
@@ -1307,6 +1349,7 @@ app.get("/", (_req, res) => {
     if (loginBtn) loginBtn.addEventListener("click", login);
     if (resendConfirmBtn) resendConfirmBtn.addEventListener("click", resendConfirmation);
     if (forgotPasswordBtn) forgotPasswordBtn.addEventListener("click", forgotPassword);
+    if (upgradeBtn) upgradeBtn.addEventListener("click", upgradeToPro);
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
     if (askBtn) askBtn.addEventListener("click", ask);
     if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
