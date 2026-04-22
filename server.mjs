@@ -1,5 +1,6 @@
 import express from "express";
 import OpenAI from "openai";
+import Stripe from "stripe";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,6 +10,12 @@ app.use(express.json());
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID;
+const APP_URL = process.env.APP_URL || "http://localhost:3000";
+
 
 app.get("/", (_req, res) => {
   res.send(`<!doctype html>
@@ -1903,6 +1910,37 @@ app.post("/ask", async (req, res) => {
     });
   }
 });
+
+app.post("/create-checkout-session", async (req, res) => {
+  try {
+    const { userId, email } = req.body || {};
+
+    if (!userId || !email) {
+      return res.status(400).json({ error: "Missing userId or email." });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      payment_method_types: ["card"],
+      customer_email: email,
+      client_reference_id: userId,
+      line_items: [
+        {
+          price: STRIPE_PRICE_ID,
+          quantity: 1
+        }
+      ],
+      success_url: APP_URL + "/?checkout=success",
+      cancel_url: APP_URL + "/?checkout=cancelled"
+    });
+
+    return res.json({ url: session.url });
+  } catch (error) {
+    console.error("Stripe checkout error:", error);
+    return res.status(500).json({ error: "Failed to create checkout session." });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
