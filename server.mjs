@@ -2079,6 +2079,7 @@ app.post("/stripe-webhook", express.raw({ type: "application/json" }), async (re
   console.log("Checkout completed");
 
   const session = event.data.object;
+  const customerId = session.customer;
 
   const userId = session.metadata?.userId;
   const email = session.metadata?.email;
@@ -2093,15 +2094,13 @@ console.log("User upgrading:", userId, email);
 
  try {
   const { error } = await supabaseAdmin
-    .from("profiles")
-    .upsert(
-      {
-        id: userId,
-        email: email,
-        plan: "pro"
-      },
-      { onConflict: "id" } // 🔥 important
-    );
+  .from("profiles")
+  .upsert({
+    id: userId,
+    email: email,
+    plan: "pro",
+    stripe_customer_id: customerId
+  }, { onConflict: "id" });
 
   if (error) {
     console.error("Supabase upsert error:", error);
