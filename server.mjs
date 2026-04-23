@@ -2135,6 +2135,25 @@ console.log("User upgrading:", userId, email);
   res.json({ received: true });
 });
 
+app.post("/create-portal-session", async (req, res) => {
+  try {
+    const { customerId } = req.body || {};
+
+    if (!customerId) {
+      return res.status(400).json({ error: "Missing customerId" });
+    }
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: APP_URL
+    });
+
+    return res.json({ url: session.url });
+  } catch (err) {
+    console.error("Portal session error:", err);
+    return res.status(500).json({ error: "Failed to create portal session" });
+  }
+});
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
