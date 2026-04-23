@@ -2182,9 +2182,29 @@ console.log("User upgrading:", userId, email);
       console.log("Subscription updated");
       break;
 
-    case "customer.subscription.deleted":
-      console.log("Subscription deleted");
-      break;
+    case "customer.subscription.deleted": {
+  console.log("Subscription deleted");
+
+  const subscription = event.data.object;
+  const customerId = subscription.customer;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ plan: "free" })
+      .eq("stripe_customer_id", customerId);
+
+    if (error) {
+      console.error("Supabase downgrade error:", error);
+    } else {
+      console.log("User downgraded to FREE for customer:", customerId);
+    }
+  } catch (err) {
+    console.error("Webhook downgrade DB error:", err);
+  }
+
+  break;
+}
 
     default:
       console.log("Unhandled event type:", event.type);
