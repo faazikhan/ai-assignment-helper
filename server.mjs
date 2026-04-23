@@ -585,8 +585,8 @@ app.get("/", (_req, res) => {
 <div id="memberActions" style="display:none;">
   <button id="logoutBtn" class="secondary" type="button">Logout</button>
   <button id="upgradeBtn" type="button">Upgrade to Pro ($9.99/month)</button>
+  <button id="manageSubscriptionBtn" class="secondary" type="button">Manage Subscription</button>
 </div>
-
 <div id="authStatus" class="status"></div>
 <div id="userInfo" class="muted">Not logged in</div>
 <div id="usageBox">Free questions used: 0 / 5</div>
@@ -663,6 +663,7 @@ app.get("/", (_req, res) => {
     const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const upgradeBtn = document.getElementById("upgradeBtn");
+    const manageSubscriptionBtn = document.getElementById("manageSubscriptionBtn");
     const authForm = document.getElementById("authForm");
     const memberActions = document.getElementById("memberActions");
     const askBtn = document.getElementById("askBtn");
@@ -839,17 +840,33 @@ updateUpgradeVisibility();
       });
     }
 
-function updateUpgradeVisibility() {
-  if (!upgradeBtn) return;
 
-  if (currentUser && currentPlan === "pro") {
+
+
+
+function updateUpgradeVisibility() {
+  if (!upgradeBtn || !manageSubscriptionBtn) return;
+
+  if (!currentUser) {
     upgradeBtn.style.display = "none";
-  } else if (currentUser) {
-    upgradeBtn.style.display = "inline-block";
+    manageSubscriptionBtn.style.display = "none";
+    return;
+  }
+
+  if (currentPlan === "pro") {
+    upgradeBtn.style.display = "none";
+    manageSubscriptionBtn.style.display = "inline-block";
   } else {
-    upgradeBtn.style.display = "none";
+    upgradeBtn.style.display = "inline-block";
+    manageSubscriptionBtn.style.display = "none";
   }
 }
+
+
+
+
+
+
 
     function updateAskButtonState() {
       const text = questionInput.value.trim();
