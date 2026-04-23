@@ -841,9 +841,6 @@ updateUpgradeVisibility();
     }
 
 
-
-
-
 function updateUpgradeVisibility() {
   if (!upgradeBtn || !manageSubscriptionBtn) return;
 
@@ -861,11 +858,6 @@ function updateUpgradeVisibility() {
     manageSubscriptionBtn.style.display = "none";
   }
 }
-
-
-
-
-
 
 
     function updateAskButtonState() {
@@ -1089,6 +1081,50 @@ async function upgradeToPro() {
         "success"
       );
     }
+
+async function openBillingPortal() {
+  if (!currentUser) {
+    setStatus(authStatus, "Please login first.", "error");
+    return;
+  }
+
+  try {
+    // get customer ID from Supabase
+    const { data, error } = await sb
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("id", currentUser.id)
+      .single();
+
+    if (error || !data?.stripe_customer_id) {
+      setStatus(authStatus, "No billing account found.", "error");
+      return;
+    }
+
+    const res = await fetch("/create-portal-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        customerId: data.stripe_customer_id
+      })
+    });
+
+    const result = await res.json();
+
+    if (result.url) {
+      window.location.href = result.url;
+    } else {
+      setStatus(authStatus, "Failed to open billing portal.", "error");
+    }
+
+  } catch (err) {
+    console.error(err);
+    setStatus(authStatus, "Something went wrong.", "error");
+  }
+}
+
 
     async function forgotPassword() {
       clearStatus(authStatus);
@@ -1432,6 +1468,11 @@ async function upgradeToPro() {
     if (resendConfirmBtn) resendConfirmBtn.addEventListener("click", resendConfirmation);
     if (forgotPasswordBtn) forgotPasswordBtn.addEventListener("click", forgotPassword);
     if (upgradeBtn) upgradeBtn.addEventListener("click", upgradeToPro);
+
+    if (manageSubscriptionBtn) {
+  manageSubscriptionBtn.addEventListener("click", openBillingPortal);
+}
+
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
     if (askBtn) askBtn.addEventListener("click", ask);
     if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
