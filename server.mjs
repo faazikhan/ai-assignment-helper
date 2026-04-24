@@ -2316,7 +2316,7 @@ app.get("/admin", (_req, res) => {
 
     const email = data.session.user.email;
 
-    if (email !== "faraz.khan@aibt.edu.au") {
+    if (email !== "faazi_khan@yahoo.com") {
       alert("Access denied");
       window.location.href = "/";
       return;
