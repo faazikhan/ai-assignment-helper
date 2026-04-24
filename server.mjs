@@ -2312,6 +2312,70 @@ app.get("/admin", (_req, res) => {
     .backLink:hover {
       text-decoration: underline;
     }
+
+
+
+
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.statCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.06);
+}
+
+.statLabel {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.statNumber {
+  font-size: 32px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+@media (max-width: 800px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
   </style>
 </head>
 
@@ -2325,6 +2389,7 @@ app.get("/admin", (_req, res) => {
   const SUPABASE_ANON_KEY = "${process.env.SUPABASE_ANON_KEY}";
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const ADMIN_EMAIL = "faazi_khan@yahoo.com";
 
   async function checkAdminAccess() {
     const { data, error } = await sb.auth.getSession();
@@ -2332,30 +2397,121 @@ app.get("/admin", (_req, res) => {
     if (error || !data.session || !data.session.user) {
       alert("Access denied");
       window.location.href = "/";
-      return;
+      return false;
     }
 
     const email = data.session.user.email;
 
-    if (email !== "faazi_khan@yahoo.com") {
+    if (email !== ADMIN_EMAIL) {
       alert("Access denied");
       window.location.href = "/";
-      return;
+      return false;
     }
+
+    return true;
   }
 
-  checkAdminAccess();
+  async function loadDashboardData() {
+    const allowed = await checkAdminAccess();
+    if (!allowed) return;
+
+    const { data: profiles, error: profilesError } = await sb
+      .from("profiles")
+      .select("id, email, plan, stripe_customer_id");
+
+    if (profilesError) {
+      document.getElementById("status").textContent = "Could not load profiles.";
+      console.error(profilesError);
+      return;
+    }
+
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const { count: visitCount, error: visitsError } = await sb
+      .from("site_visits")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", since);
+
+    if (visitsError) {
+      console.error(visitsError);
+    }
+
+    const totalUsers = profiles.length;
+    const proUsers = profiles.filter(u => u.plan === "pro").length;
+    const freeUsers = profiles.filter(u => u.plan !== "pro").length;
+
+    document.getElementById("totalUsers").textContent = totalUsers;
+    document.getElementById("proUsers").textContent = proUsers;
+    document.getElementById("freeUsers").textContent = freeUsers;
+    document.getElementById("visits24h").textContent = visitCount ?? 0;
+
+    const tbody = document.getElementById("usersTableBody");
+    tbody.innerHTML = "";
+
+    profiles.forEach(user => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${user.email || ""}</td>
+        <td>${user.plan || "free"}</td>
+        <td>${user.stripe_customer_id || "-"}</td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+    document.getElementById("status").textContent = "Dashboard loaded.";
+  }
+
+  window.addEventListener("load", loadDashboardData);
 </script>
-  <div class="container">
-    <div class="card">
-      <h1>Admin Dashboard</h1>
-      <p>This is the admin area for AssignHelp AI.</p>
-      <p>We will now connect this page to your Supabase data.</p>
-      <a class="backLink" href="/">← Back to Home</a>
+
+<div class="container">
+  <div class="card">
+    <h1>Admin Dashboard</h1>
+    <p id="status">Loading dashboard...</p>
+    <a class="backLink" href="/">← Back to Home</a>
+  </div>
+
+  <div class="statsGrid">
+    <div class="statCard">
+      <div class="statLabel">Total Users</div>
+      <div id="totalUsers" class="statNumber">0</div>
+    </div>
+
+    <div class="statCard">
+      <div class="statLabel">Pro Users</div>
+      <div id="proUsers" class="statNumber">0</div>
+    </div>
+
+    <div class="statCard">
+      <div class="statLabel">Free Users</div>
+      <div id="freeUsers" class="statNumber">0</div>
+    </div>
+
+    <div class="statCard">
+      <div class="statLabel">Visits Last 24 Hours</div>
+      <div id="visits24h" class="statNumber">0</div>
     </div>
   </div>
-</body>
 
+  <div class="card">
+    <h2>User List</h2>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Plan</th>
+            <th>Stripe Customer ID</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
 
 
 </html>`);
