@@ -1436,6 +1436,20 @@ async function openBillingPortal() {
       }
     }
 
+async function trackVisit() {
+  try {
+    const { data } = await sb.auth.getSession();
+    const email = data?.session?.user?.email || null;
+
+    await sb.from("site_visits").insert({
+      page: "home",
+      user_email: email
+    });
+  } catch (err) {
+    console.error("trackVisit error:", err);
+  }
+}
+
     async function restoreSession() {
       const { data, error } = await sb.auth.getSession();
 
@@ -1483,12 +1497,19 @@ async function openBillingPortal() {
       questionInput.addEventListener("input", updateWordCount);
     }
 
-    window.addEventListener("load", async () => {
-      updateWordCount();
-      updateAskButtonState();
-      updateAuthButtons();
-      await restoreSession();
-    });
+
+
+
+window.addEventListener("load", async () => {
+  updateWordCount();
+  updateAskButtonState();
+  updateAuthButtons();
+  await restoreSession();
+  await trackVisit(); // 🔥 add this line
+});
+
+
+
   </script>
 </div>
 </body>
