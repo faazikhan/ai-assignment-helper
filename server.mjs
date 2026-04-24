@@ -2293,7 +2293,38 @@ app.get("/admin", (_req, res) => {
     }
   </style>
 </head>
+
+
+
 <body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = "${process.env.SUPABASE_URL}";
+  const SUPABASE_ANON_KEY = "${process.env.SUPABASE_ANON_KEY}";
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function checkAdminAccess() {
+    const { data, error } = await sb.auth.getSession();
+
+    if (error || !data.session || !data.session.user) {
+      alert("Access denied");
+      window.location.href = "/";
+      return;
+    }
+
+    const email = data.session.user.email;
+
+    if (email !== "faraz.khan@aibt.edu.au") {
+      alert("Access denied");
+      window.location.href = "/";
+      return;
+    }
+  }
+
+  checkAdminAccess();
+</script>
   <div class="container">
     <div class="card">
       <h1>Admin Dashboard</h1>
@@ -2303,6 +2334,9 @@ app.get("/admin", (_req, res) => {
     </div>
   </div>
 </body>
+
+
+
 </html>`);
 });
 
