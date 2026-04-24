@@ -2407,7 +2407,7 @@ th {
       window.location.href = "/";
       return false;
     }
-
+document.getElementById("adminContent").style.display = "block";
     return true;
   }
 
@@ -2475,8 +2475,7 @@ th {
   window.addEventListener("load", loadDashboardData);
 </script>
 
-<div class="container">
-  <div class="card">
+<div id="adminContent" class="container" style="display:none;">  <div class="card">
     <h1>Admin Dashboard</h1>
     <p id="status">Loading dashboard...</p>
     <a class="backLink" href="/">← Back to Home</a>
