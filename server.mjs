@@ -2451,11 +2451,20 @@ th {
     profiles.forEach(user => {
       const row = document.createElement("tr");
 
-      row.innerHTML = `
-        <td>${user.email || ""}</td>
-        <td>${user.plan || "free"}</td>
-        <td>${user.stripe_customer_id || "-"}</td>
-      `;
+
+
+
+
+
+     row.innerHTML =
+  "<td>" + (user.email || "") + "</td>" +
+  "<td>" + (user.plan || "free") + "</td>" +
+  "<td>" + (user.stripe_customer_id || "-") + "</td>";
+
+
+
+
+
 
       tbody.appendChild(row);
     });
